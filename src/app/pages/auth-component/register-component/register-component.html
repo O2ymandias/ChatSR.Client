@@ -1,0 +1,224 @@
+@let userNameCtr = registerForm.controls.userName;
+@let emailCtr = registerForm.controls.email;
+@let phoneCtr = registerForm.controls.phone;
+@let passwordCtr = registerForm.controls.password;
+@let confirmPasswordCtr = registerForm.controls.confirmPassword;
+
+<div class="bg-surface-50 dark:bg-surface-950 px-6 py-20 md:px-20 lg:px-80">
+  <div
+    class="bg-surface-0 dark:bg-surface-900 p-8 md:p-12 shadow-sm rounded-2xl w-full max-w-xl mx-auto flex flex-col gap-8"
+  >
+    <!-- Header -->
+    <div class="flex flex-col items-center gap-4">
+      <div class="flex flex-col items-center gap-2">
+        <img class="w-24" src="/logo.png" alt="ChatSR logo" />
+        <h1 class="text-3xl font-bold text-surface-900 dark:text-surface-0 tracking-wide">
+          ChatSR
+        </h1>
+      </div>
+
+      <div class="flex flex-col items-center gap-2 w-full">
+        <div
+          class="text-surface-900 dark:text-surface-0 text-2xl font-semibold leading-tight text-center w-full"
+        >
+          Create Account
+        </div>
+
+        <div class="text-center w-full">
+          <span class="text-surface-700 dark:text-surface-200 leading-normal">
+            Already have an account?
+          </span>
+          <a
+            routerLink="/auth/login"
+            class="text-primary font-medium ml-1 cursor-pointer hover:text-primary-emphasis"
+          >
+            Login now!
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Register Form -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-6 w-full">
+      <!-- Username -->
+      <div class="flex flex-col gap-2 w-full">
+        <label
+          for="userName"
+          class="text-surface-900 dark:text-surface-0 font-medium leading-normal"
+        >
+          Username
+        </label>
+
+        <input
+          formControlName="userName"
+          pInputText
+          id="userName"
+          type="text"
+          placeholder="Username"
+          class="w-full px-3 py-2 shadow-sm rounded-lg"
+          autocomplete="name"
+        />
+
+        @if (userNameCtr.errors && (userNameCtr.dirty || userNameCtr.touched)) {
+          @if (userNameCtr.hasError('required')) {
+            <p-message severity="error" size="small" variant="simple">
+              Username is required.
+            </p-message>
+          }
+
+          @if (userNameCtr.hasError('minlength')) {
+            <p-message severity="error" size="small" variant="simple">
+              Username must be at least 3 characters.
+            </p-message>
+          }
+
+          @if (userNameCtr.hasError('maxlength')) {
+            <p-message severity="error" size="small" variant="simple">
+              Username can't exceed 100 characters.
+            </p-message>
+          }
+        }
+      </div>
+
+      <!-- Email -->
+      <div class="flex flex-col gap-2 w-full">
+        <label for="email" class="text-surface-900 dark:text-surface-0 font-medium leading-normal">
+          Email
+        </label>
+        <input
+          formControlName="email"
+          pInputText
+          id="email"
+          type="text"
+          placeholder="Email"
+          class="w-full px-3 py-2 shadow-sm rounded-lg"
+          autocomplete="email"
+        />
+        @if (emailCtr.errors && (emailCtr.dirty || emailCtr.touched)) {
+          @if (emailCtr.hasError('required')) {
+            <p-message severity="error" size="small" variant="simple">
+              Email is required.
+            </p-message>
+          }
+
+          @if (emailCtr.hasError('email')) {
+            <p-message severity="error" size="small" variant="simple">
+              Email is invalid.
+            </p-message>
+          }
+        }
+      </div>
+
+      <!-- Phone -->
+      <div class="flex flex-col gap-2 w-full">
+        <label for="phone" class="text-surface-900 dark:text-surface-0 font-medium leading-normal">
+          Phone
+        </label>
+        <input
+          formControlName="phone"
+          pInputText
+          id="phone"
+          type="text"
+          placeholder="Phone"
+          class="w-full px-3 py-2 shadow-sm rounded-lg"
+          autocomplete="tel"
+        />
+        @if (phoneCtr.errors && (phoneCtr.dirty || phoneCtr.touched)) {
+          @if (phoneCtr.hasError('required')) {
+            <p-message severity="error" size="small" variant="simple">
+              phone is required.
+            </p-message>
+          }
+
+          @if (phoneCtr.hasError('pattern')) {
+            <p-message severity="error" size="small" variant="simple">
+              Invalid Egyptian mobile number. It must start with 010, 011, 012, or 015 and contain
+              11 digits.
+            </p-message>
+          }
+        }
+      </div>
+
+      <!-- Password -->
+      <div class="flex flex-col gap-2 w-full">
+        <label
+          for="password"
+          class="text-surface-900 dark:text-surface-0 font-medium leading-normal"
+        >
+          Password
+        </label>
+
+        <p-password
+          formControlName="password"
+          [toggleMask]="true"
+          [feedback]="false"
+          inputId="password"
+          placeholder="Password"
+          inputStyleClass="w-full shadow-sm rounded-lg"
+          autocomplete="current-password"
+        />
+
+        @if (passwordCtr.errors && (passwordCtr.dirty || passwordCtr.touched)) {
+          @if (passwordCtr.hasError('required')) {
+            <p-message severity="error" size="small" variant="simple">
+              Password is required.
+            </p-message>
+          }
+
+          @if (passwordCtr.hasError('pattern')) {
+            <p-message severity="error" size="small" variant="simple">
+              Password must be at least 6 characters long and include at least one uppercase letter,
+              one lowercase letter, one number, and one special character (@, $, !, %, *, ?, &).
+            </p-message>
+          }
+        }
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="flex flex-col gap-2 w-full">
+        <label
+          for="confirmPassword"
+          class="text-surface-900 dark:text-surface-0 font-medium leading-normal"
+        >
+          Confirm Password
+        </label>
+
+        <p-password
+          formControlName="confirmPassword"
+          [toggleMask]="true"
+          [feedback]="false"
+          inputId="confirmPassword"
+          placeholder="Confirm Password"
+          inputStyleClass="w-full shadow-sm rounded-lg"
+          autocomplete="current-password"
+        />
+
+        @if (
+          (confirmPasswordCtr.dirty || confirmPasswordCtr.touched) &&
+          confirmPasswordCtr.hasError('required')
+        ) {
+          <p-message severity="error" size="small" variant="simple">
+            Confirm Password is required.
+          </p-message>
+        }
+
+        @if (confirmPasswordCtr.dirty && registerForm.hasError('mismatch')) {
+          <p-message severity="error" size="small" variant="simple">
+            Password and Confirm Password do not match.
+          </p-message>
+        }
+      </div>
+
+      <button
+        pButton
+        [loading]="loading()"
+        class="w-full py-2 rounded-lg flex justify-center items-center gap-2"
+      >
+        <i pButtonIcon class="pi pi-user text-base! leading-normal!"></i>
+        <span pButtonLabel>Sign Up</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<p-toast position="bottom-right" key="br" />

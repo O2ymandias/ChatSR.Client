@@ -9,5 +9,5 @@ import { ButtonModule } from 'primeng/button';
   styleUrl: './app.css',
 })
 export class App {
-  protected readonly title = signal('ChatSR.Client');
+  protected readonly title = signal('ChatSR');
 }
