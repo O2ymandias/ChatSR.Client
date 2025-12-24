@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
+import { computed, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import {
   AuthResponse,
   LoginUserRequest,
@@ -9,27 +9,38 @@ import { environment } from '../../environment';
 import { tap } from 'rxjs';
 import { ApiResponse } from '../../shared/models/shared.model';
 import { isPlatformBrowser } from '@angular/common';
+import { ChatHubService } from './chat-hub-service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private readonly _chatHubService = inject(ChatHubService);
   private readonly _httpClient = inject(HttpClient);
   private readonly _platformId = inject(PLATFORM_ID);
 
   constructor() {
-    if (isPlatformBrowser(this._platformId)) {
-      const token = localStorage.getItem('token');
-      const expiresOn = localStorage.getItem('expiresOn');
-      if (token && expiresOn) {
-        this.token.set(token);
-        this.tokenExpiresOn.set(new Date(expiresOn));
-      }
-    }
+    if (!isPlatformBrowser(this._platformId)) return;
+
+    const token = localStorage.getItem('token');
+    const expiresOn = localStorage.getItem('expiresOn');
+
+    if (!token || !expiresOn) return;
+
+    this.token.set(token);
+    this.tokenExpiresOn.set(new Date(expiresOn));
   }
 
   token = signal<string | null>(null);
   tokenExpiresOn = signal<Date | null>(null);
+
+  isAuthenticated = computed(() => {
+    const token = this.token();
+    const expiresOn = this.tokenExpiresOn();
+    if (!token || !expiresOn) return false;
+
+    return new Date() < expiresOn;
+  });
 
   login(request: LoginUserRequest) {
     return this._httpClient
@@ -41,6 +52,7 @@ export class AuthService {
             this.token.set(token);
             this.tokenExpiresOn.set(expiresOn);
             this.persistToken();
+            this._chatHubService.startConnection(token);
           }
         }),
       );
@@ -56,6 +68,7 @@ export class AuthService {
             this.token.set(token);
             this.tokenExpiresOn.set(expiresOn);
             this.persistToken();
+            this._chatHubService.startConnection(token);
           }
         }),
       );
@@ -75,5 +88,6 @@ export class AuthService {
     this.tokenExpiresOn.set(null);
     localStorage.removeItem('token');
     localStorage.removeItem('expiresOn');
+    this._chatHubService.stopConnection();
   }
 }
