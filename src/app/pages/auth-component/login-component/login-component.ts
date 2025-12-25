@@ -68,7 +68,6 @@ export class LoginComponent {
       })
       .pipe(
         tap((res) => {
-          console.log('LoggedIn');
           if (res.isSuccess && res.data) {
             this._router.navigate(['/home']);
             const userInfo = res.data.userInfo;

@@ -53,6 +53,7 @@
           placeholder="Username Or Email"
           class="w-full px-3 py-2 shadow-sm rounded-lg"
           autocomplete="email"
+          [autofocus]="false"
         />
         @if (
           userNameOrEmailCtr.errors && (userNameOrEmailCtr.dirty || userNameOrEmailCtr.touched)
@@ -86,6 +87,7 @@
           placeholder="Password"
           inputStyleClass="w-full shadow-sm rounded-lg"
           autocomplete="current-password"
+          [autofocus]="false"
         />
 
         @if (passwordCtr.errors && (passwordCtr.dirty || passwordCtr.touched)) {
