@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import {
   AuthResponse,
+  JwtPayload,
   LoginUserRequest,
   RegisterUserRequest,
 } from '../../shared/models/auth.model';
@@ -10,6 +11,7 @@ import { tap } from 'rxjs';
 import { ApiResponse } from '../../shared/models/shared.model';
 import { isPlatformBrowser } from '@angular/common';
 import { ChatHubService } from './chat-hub-service';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root',
@@ -40,6 +42,12 @@ export class AuthService {
     if (!token || !expiresOn) return false;
 
     return new Date() < expiresOn;
+  });
+
+  userInfo = computed(() => {
+    const token = this.token();
+    if (!token) return null;
+    return jwtDecode<JwtPayload>(token);
   });
 
   login(request: LoginUserRequest) {
