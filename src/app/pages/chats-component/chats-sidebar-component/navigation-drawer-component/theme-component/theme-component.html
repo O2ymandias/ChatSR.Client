@@ -1,0 +1,8 @@
+<div class="flex items-center justify-between">
+  <div class="flex items-center gap-2">
+    <i class="pi pi-moon"></i>
+    <span>Dark Mode</span>
+  </div>
+
+  <p-toggleswitch [ngModel]="isDarkMode()" (onChange)="toggleTheme()" />
+</div>

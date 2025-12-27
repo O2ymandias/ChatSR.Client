@@ -69,7 +69,7 @@ export class LoginComponent {
       .pipe(
         tap((res) => {
           if (res.isSuccess && res.data) {
-            this._router.navigate(['/home']);
+            this._router.navigate(['/chats']);
             const userInfo = res.data.userInfo;
             this._messageService.add({
               key: 'br',

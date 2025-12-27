@@ -30,6 +30,7 @@ export const appConfig: ApplicationConfig = {
           darkModeSelector: '.dark',
         },
       },
+      ripple: true,
     }),
     provideAppInitializer(initializeChatHub),
   ],

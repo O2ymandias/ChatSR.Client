@@ -1,0 +1,83 @@
+<p-button
+  icon="pi pi-bars"
+  [text]="true"
+  severity="secondary"
+  (onClick)="navigationDrawerVisible.set(true)"
+/>
+
+<p-drawer
+  [(visible)]="navigationDrawerVisible"
+  [closable]="false"
+  position="left"
+  [style]="{ width: '300px' }"
+>
+  <!-- Header -->
+  <ng-template #header>
+    <div class="flex w-full flex-col gap-4 p-4">
+      <div class="flex items-center gap-4">
+        <p-avatar image="https://i.pravatar.cc/100" shape="circle" size="large"></p-avatar>
+        <div class="flex flex-col">
+          <span class="text-lg font-bold text-gray-900 dark:text-gray-100">Abdouh</span>
+          <span class="text-primary text-sm font-medium">Online</span>
+        </div>
+      </div>
+
+      <span class="font-medium text-gray-600 dark:text-gray-300"> abdouh@me.com </span>
+    </div>
+  </ng-template>
+
+  <!-- Menu Items  -->
+  <ul class="flex flex-col gap-2">
+    <li
+      pRipple
+      class="flex cursor-pointer items-center justify-between rounded px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-950"
+    >
+      <div class="flex items-center gap-2">
+        <i class="pi pi-user"></i>
+        <span>My Profile</span>
+      </div>
+    </li>
+
+    <li
+      pRipple
+      class="flex cursor-pointer items-center justify-between rounded px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-950"
+    >
+      <div class="flex items-center gap-2">
+        <i class="pi pi-users"></i>
+        <span>Friends</span>
+      </div>
+    </li>
+
+    <li
+      pRipple
+      class="flex cursor-pointer items-center justify-between rounded px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-950"
+    >
+      <div class="flex items-center gap-2">
+        <i class="pi pi-bell"></i>
+        <span>Notifications</span>
+      </div>
+    </li>
+
+    <li
+      pRipple
+      class="flex cursor-pointer items-center justify-between rounded px-4 py-2 hover:bg-neutral-100 dark:hover:bg-neutral-950"
+    >
+      <div class="flex items-center gap-2">
+        <i class="pi pi-cog"></i>
+        <span>Settings</span>
+      </div>
+    </li>
+
+    <!-- Theme Toggle -->
+    <li class="px-4 py-2">
+      <app-theme-component />
+    </li>
+  </ul>
+
+  <ng-template #footer>
+    <!-- Logout -->
+    <div class="flex justify-end">
+      <app-logout-component />
+    </div>
+  </ng-template>
+</p-drawer>

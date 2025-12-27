@@ -1,0 +1,65 @@
+<div
+  class="flex h-screen w-80 flex-col justify-between border-r border-neutral-200 dark:border-neutral-800"
+>
+  <!-- Header -->
+  <div class="flex items-center gap-4 border-b border-neutral-200 p-4 dark:border-neutral-800">
+    <app-navigation-drawer-component />
+
+    <p-iconField iconPosition="left" class="relative w-full">
+      <!-- Search icon -->
+      <p-inputIcon>
+        <i class="pi pi-search"></i>
+      </p-inputIcon>
+
+      <!-- Input -->
+      <input
+        #searchInput
+        type="text"
+        pInputText
+        placeholder="Search chats..."
+        class="w-full px-10"
+        [(ngModel)]="searchQuery"
+        [autofocus]="true"
+      />
+
+      <!-- Clear button -->
+      @if (searchQuery()) {
+        <button
+          type="button"
+          class="absolute top-1/2 right-2 flex size-7 -translate-y-1/2 scale-90 animate-[fadeIn_150ms_ease-out_forwards] items-center justify-center rounded-full text-gray-400 opacity-0 transition-all duration-150 hover:bg-gray-100 hover:text-gray-600 active:bg-gray-200 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-400 dark:active:bg-gray-600"
+          (click)="clearSearch()"
+        >
+          <i class="pi pi-times text-sm"></i>
+        </button>
+      }
+    </p-iconField>
+  </div>
+
+  <!-- Chats List -->
+  <div class="flex-1 overflow-hidden">
+    <p-scrollpanel class="h-full w-full">
+      <ul>
+        <li
+          pRipple
+          class="flex cursor-pointer items-center gap-4 p-4 hover:bg-gray-200/50 dark:hover:bg-gray-800/50"
+        >
+          <img src="https://i.pravatar.cc/40" class="h-10 w-10 rounded-full" />
+          <div class="flex flex-col">
+            <span class="font-medium text-gray-900 dark:text-gray-100">Alice</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">Hey! How are you?</span>
+          </div>
+        </li>
+        <li
+          pRipple
+          class="flex cursor-pointer items-center gap-4 p-4 hover:bg-gray-200/50 dark:hover:bg-gray-800/50"
+        >
+          <img src="https://i.pravatar.cc/40" class="h-10 w-10 rounded-full" />
+          <div class="flex flex-col">
+            <span class="font-medium text-gray-900 dark:text-gray-100">Alice</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">Hey! How are you?</span>
+          </div>
+        </li>
+      </ul>
+    </p-scrollpanel>
+  </div>
+</div>
