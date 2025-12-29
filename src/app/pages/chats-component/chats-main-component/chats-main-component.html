@@ -1,0 +1,129 @@
+<div class="flex h-full flex-col rounded-2xl ring ring-neutral-200 dark:ring-neutral-800">
+  <!-- Header -->
+  <div
+    class="flex items-center justify-between border-b-2 border-neutral-200 px-8 py-4 dark:border-neutral-800"
+  >
+    <div class="flex items-center gap-3">
+      <img
+        src="https://i.pravatar.cc/40?img=12"
+        class="size-10 rounded-full object-cover"
+        alt="Avatar"
+      />
+
+      <div>
+        <p class="font-bold text-neutral-900 dark:text-neutral-100">John Doe</p>
+        <p class="text-primary text-sm font-medium">Online</p>
+      </div>
+    </div>
+
+    <!-- Search Input -->
+    @let searchVisible = searchMessagesVisible();
+    <div
+      [class.opacity-100]="searchVisible"
+      [class.opacity-0]="!searchVisible"
+      class="relative transition-all duration-150 ease-in-out"
+    >
+      <input
+        pInputText
+        [(ngModel)]="searchQuery"
+        type="text"
+        placeholder="Search messages..."
+        class="w-80 rounded-full"
+      />
+
+      <!-- Clear button -->
+      @if (searchQuery()) {
+        <button
+          type="button"
+          class="absolute top-1/2 right-2 flex size-7 -translate-y-1/2 scale-90 animate-[fadeIn_150ms_ease-out_forwards] items-center justify-center rounded-full text-gray-400 opacity-0 transition-all duration-150 hover:bg-gray-100 hover:text-gray-600 active:bg-gray-200 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-400 dark:active:bg-gray-600"
+          (click)="clearSearch()"
+        >
+          <i class="pi pi-times text-sm"></i>
+        </button>
+      }
+    </div>
+
+    <div class="flex items-center gap-2">
+      <!-- Search  -->
+      @if (searchMessagesVisible()) {
+        <p-button
+          icon="pi pi-times"
+          rounded
+          outlined
+          severity="danger"
+          (click)="searchMessagesVisible.set(false)"
+        />
+      } @else {
+        <p-button
+          icon="pi pi-search"
+          rounded
+          text
+          severity="secondary"
+          (click)="searchMessagesVisible.set(true)"
+        />
+      }
+
+      <!-- More  -->
+      <p-button icon="pi pi-ellipsis-v" rounded text severity="secondary" />
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div
+    class="grow space-y-4 overflow-y-auto bg-neutral-100 px-10 py-6 lg:px-14 dark:bg-neutral-950"
+  >
+    <!-- Date Separator -->
+    <div class="flex justify-center py-4">
+      <div class="rounded-full bg-cyan-500/75 px-4 py-2 text-xs text-white dark:bg-cyan-700/75">
+        <span class="font-medium">25/01/2023</span>
+      </div>
+    </div>
+
+    <!-- Incoming Message -->
+    <div class="flex justify-start">
+      <div
+        class="max-w-[75%] rounded-lg rounded-tl-none bg-white px-4 py-2 text-sm shadow-sm lg:max-w-[65%] dark:bg-neutral-800 dark:text-gray-100"
+      >
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Obcaecati rerum eligendi labore
+          deserunt pariatur a aut minus adipisci ut. Enim.
+        </p>
+        <span class="mt-2 block text-xs text-gray-400 dark:text-gray-500">10:00 AM</span>
+      </div>
+    </div>
+
+    <!-- Outgoing Message -->
+    <div class="flex justify-end">
+      <div
+        class="max-w-[75%] rounded-lg rounded-tr-none bg-teal-200 px-3 py-2 text-sm text-gray-900 shadow-sm lg:max-w-[65%] dark:bg-teal-700 dark:text-white"
+      >
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi temporibus porro eveniet
+          quaerat? Dolor dignissimos tempora nam qui maxime non perferendis quod corrupti ipsam in
+          animi rem molestias nisi aliquam, libero exercitationem quas id dicta quaerat, ab
+          accusantium repudiandae?
+        </p>
+        <div
+          class="mt-2 flex items-center justify-end gap-1 text-xs text-gray-500 dark:text-gray-300"
+        >
+          <span>10:01 AM</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="border-t-2 border-neutral-200 px-8 py-4 dark:border-neutral-800">
+    <div class="flex items-center gap-4">
+      <textarea
+        pInputTextarea
+        autoResize
+        rows="1"
+        placeholder="Type a message"
+        class="w-full rounded-full px-4"
+      ></textarea>
+
+      <p-button rounded icon="pi pi-send" severity="info" />
+    </div>
+  </div>
+</div>
