@@ -2,9 +2,9 @@ export type MessageResponse = {
   messageId: string;
   chatId: string;
   content: string;
-  sentAt: Date;
+  sentAt: string;
   isEdited: boolean;
-  editedAt?: Date;
+  editedAt?: string;
   senderId: string;
   senderDisplayName: string;
   senderPictureUrl?: string;

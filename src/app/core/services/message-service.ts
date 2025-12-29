@@ -19,11 +19,6 @@ export class MessageService {
     params = params.append('page', pagination.page.toString());
     params = params.append('pageSize', pagination.pageSize.toString());
 
-    return this._httpClient.get<PagedApiResponse<MessageResponse>>(url, {
-      params,
-      headers: {
-        Authorization: `Bearer ${this._authService.token()}`,
-      },
-    });
+    return this._httpClient.get<PagedApiResponse<MessageResponse>>(url, { params });
   }
 }

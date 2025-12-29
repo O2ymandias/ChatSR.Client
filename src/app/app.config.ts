@@ -10,14 +10,15 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { initializeChatHub } from './core/initializers/initialize-chat-hub';
+import { attachTokenInterceptor } from './core/interceptors/attach-token-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withFetch()),
+    provideHttpClient(withFetch(), withInterceptors([attachTokenInterceptor])),
     provideClientHydration(withEventReplay()),
     providePrimeNG({
       theme: {
