@@ -1,0 +1,13 @@
+.p-scrollpanel-bar {
+  width: 8px;
+  background-color: var(--color-slate-400);
+  opacity: 0.5;
+}
+
+.p-scrollpanel-bar:hover {
+  opacity: 1;
+}
+
+.dark .p-scrollpanel-bar {
+  background-color: var(--color-slate-600);
+}

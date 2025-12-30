@@ -40,6 +40,279 @@
           </span>
         </div>
       </li>
+      <li
+        pRipple
+        class="flex cursor-pointer items-center gap-4 p-4 hover:bg-gray-200/50 dark:hover:bg-gray-800/50"
+      >
+        <!-- Avatar -->
+        @if (chat.DisplayPictureUrl) {
+          <img [src]="chat.DisplayPictureUrl" class="size-10 shrink-0 rounded-full object-cover" />
+        } @else {
+          <div
+            class="flex size-10 shrink-0 items-center justify-center rounded-full"
+            [class]="
+              chat.isGroup
+                ? 'bg-linear-to-br from-teal-400 to-teal-600'
+                : 'bg-linear-to-br from-sky-400 to-sky-600'
+            "
+          >
+            <span class="font-medium text-white uppercase">
+              {{ chat.name.charAt(0) }}
+            </span>
+          </div>
+        }
+
+        <!-- Content -->
+        <div class="min-w-0 grow">
+          <div class="flex items-center justify-between gap-2">
+            <span class="truncate font-medium text-gray-900 dark:text-gray-100">
+              {{ chat.name }}
+            </span>
+
+            <span class="shrink-0 text-sm text-gray-500 dark:text-gray-400">
+              {{ chat.lastMessage?.sentAt | chatDate }}
+            </span>
+          </div>
+
+          <span class="block truncate text-sm text-gray-500 dark:text-gray-400">
+            {{ chat.lastMessage?.content }}
+          </span>
+        </div>
+      </li>
+      <li
+        pRipple
+        class="flex cursor-pointer items-center gap-4 p-4 hover:bg-gray-200/50 dark:hover:bg-gray-800/50"
+      >
+        <!-- Avatar -->
+        @if (chat.DisplayPictureUrl) {
+          <img [src]="chat.DisplayPictureUrl" class="size-10 shrink-0 rounded-full object-cover" />
+        } @else {
+          <div
+            class="flex size-10 shrink-0 items-center justify-center rounded-full"
+            [class]="
+              chat.isGroup
+                ? 'bg-linear-to-br from-teal-400 to-teal-600'
+                : 'bg-linear-to-br from-sky-400 to-sky-600'
+            "
+          >
+            <span class="font-medium text-white uppercase">
+              {{ chat.name.charAt(0) }}
+            </span>
+          </div>
+        }
+
+        <!-- Content -->
+        <div class="min-w-0 grow">
+          <div class="flex items-center justify-between gap-2">
+            <span class="truncate font-medium text-gray-900 dark:text-gray-100">
+              {{ chat.name }}
+            </span>
+
+            <span class="shrink-0 text-sm text-gray-500 dark:text-gray-400">
+              {{ chat.lastMessage?.sentAt | chatDate }}
+            </span>
+          </div>
+
+          <span class="block truncate text-sm text-gray-500 dark:text-gray-400">
+            {{ chat.lastMessage?.content }}
+          </span>
+        </div>
+      </li>
+      <li
+        pRipple
+        class="flex cursor-pointer items-center gap-4 p-4 hover:bg-gray-200/50 dark:hover:bg-gray-800/50"
+      >
+        <!-- Avatar -->
+        @if (chat.DisplayPictureUrl) {
+          <img [src]="chat.DisplayPictureUrl" class="size-10 shrink-0 rounded-full object-cover" />
+        } @else {
+          <div
+            class="flex size-10 shrink-0 items-center justify-center rounded-full"
+            [class]="
+              chat.isGroup
+                ? 'bg-linear-to-br from-teal-400 to-teal-600'
+                : 'bg-linear-to-br from-sky-400 to-sky-600'
+            "
+          >
+            <span class="font-medium text-white uppercase">
+              {{ chat.name.charAt(0) }}
+            </span>
+          </div>
+        }
+
+        <!-- Content -->
+        <div class="min-w-0 grow">
+          <div class="flex items-center justify-between gap-2">
+            <span class="truncate font-medium text-gray-900 dark:text-gray-100">
+              {{ chat.name }}
+            </span>
+
+            <span class="shrink-0 text-sm text-gray-500 dark:text-gray-400">
+              {{ chat.lastMessage?.sentAt | chatDate }}
+            </span>
+          </div>
+
+          <span class="block truncate text-sm text-gray-500 dark:text-gray-400">
+            {{ chat.lastMessage?.content }}
+          </span>
+        </div>
+      </li>
+      <li
+        pRipple
+        class="flex cursor-pointer items-center gap-4 p-4 hover:bg-gray-200/50 dark:hover:bg-gray-800/50"
+      >
+        <!-- Avatar -->
+        @if (chat.DisplayPictureUrl) {
+          <img [src]="chat.DisplayPictureUrl" class="size-10 shrink-0 rounded-full object-cover" />
+        } @else {
+          <div
+            class="flex size-10 shrink-0 items-center justify-center rounded-full"
+            [class]="
+              chat.isGroup
+                ? 'bg-linear-to-br from-teal-400 to-teal-600'
+                : 'bg-linear-to-br from-sky-400 to-sky-600'
+            "
+          >
+            <span class="font-medium text-white uppercase">
+              {{ chat.name.charAt(0) }}
+            </span>
+          </div>
+        }
+
+        <!-- Content -->
+        <div class="min-w-0 grow">
+          <div class="flex items-center justify-between gap-2">
+            <span class="truncate font-medium text-gray-900 dark:text-gray-100">
+              {{ chat.name }}
+            </span>
+
+            <span class="shrink-0 text-sm text-gray-500 dark:text-gray-400">
+              {{ chat.lastMessage?.sentAt | chatDate }}
+            </span>
+          </div>
+
+          <span class="block truncate text-sm text-gray-500 dark:text-gray-400">
+            {{ chat.lastMessage?.content }}
+          </span>
+        </div>
+      </li>
+      <li
+        pRipple
+        class="flex cursor-pointer items-center gap-4 p-4 hover:bg-gray-200/50 dark:hover:bg-gray-800/50"
+      >
+        <!-- Avatar -->
+        @if (chat.DisplayPictureUrl) {
+          <img [src]="chat.DisplayPictureUrl" class="size-10 shrink-0 rounded-full object-cover" />
+        } @else {
+          <div
+            class="flex size-10 shrink-0 items-center justify-center rounded-full"
+            [class]="
+              chat.isGroup
+                ? 'bg-linear-to-br from-teal-400 to-teal-600'
+                : 'bg-linear-to-br from-sky-400 to-sky-600'
+            "
+          >
+            <span class="font-medium text-white uppercase">
+              {{ chat.name.charAt(0) }}
+            </span>
+          </div>
+        }
+
+        <!-- Content -->
+        <div class="min-w-0 grow">
+          <div class="flex items-center justify-between gap-2">
+            <span class="truncate font-medium text-gray-900 dark:text-gray-100">
+              {{ chat.name }}
+            </span>
+
+            <span class="shrink-0 text-sm text-gray-500 dark:text-gray-400">
+              {{ chat.lastMessage?.sentAt | chatDate }}
+            </span>
+          </div>
+
+          <span class="block truncate text-sm text-gray-500 dark:text-gray-400">
+            {{ chat.lastMessage?.content }}
+          </span>
+        </div>
+      </li>
+      <li
+        pRipple
+        class="flex cursor-pointer items-center gap-4 p-4 hover:bg-gray-200/50 dark:hover:bg-gray-800/50"
+      >
+        <!-- Avatar -->
+        @if (chat.DisplayPictureUrl) {
+          <img [src]="chat.DisplayPictureUrl" class="size-10 shrink-0 rounded-full object-cover" />
+        } @else {
+          <div
+            class="flex size-10 shrink-0 items-center justify-center rounded-full"
+            [class]="
+              chat.isGroup
+                ? 'bg-linear-to-br from-teal-400 to-teal-600'
+                : 'bg-linear-to-br from-sky-400 to-sky-600'
+            "
+          >
+            <span class="font-medium text-white uppercase">
+              {{ chat.name.charAt(0) }}
+            </span>
+          </div>
+        }
+
+        <!-- Content -->
+        <div class="min-w-0 grow">
+          <div class="flex items-center justify-between gap-2">
+            <span class="truncate font-medium text-gray-900 dark:text-gray-100">
+              {{ chat.name }}
+            </span>
+
+            <span class="shrink-0 text-sm text-gray-500 dark:text-gray-400">
+              {{ chat.lastMessage?.sentAt | chatDate }}
+            </span>
+          </div>
+
+          <span class="block truncate text-sm text-gray-500 dark:text-gray-400">
+            {{ chat.lastMessage?.content }}
+          </span>
+        </div>
+      </li>
+      <li
+        pRipple
+        class="flex cursor-pointer items-center gap-4 p-4 hover:bg-gray-200/50 dark:hover:bg-gray-800/50"
+      >
+        <!-- Avatar -->
+        @if (chat.DisplayPictureUrl) {
+          <img [src]="chat.DisplayPictureUrl" class="size-10 shrink-0 rounded-full object-cover" />
+        } @else {
+          <div
+            class="flex size-10 shrink-0 items-center justify-center rounded-full"
+            [class]="
+              chat.isGroup
+                ? 'bg-linear-to-br from-teal-400 to-teal-600'
+                : 'bg-linear-to-br from-sky-400 to-sky-600'
+            "
+          >
+            <span class="font-medium text-white uppercase">
+              {{ chat.name.charAt(0) }}
+            </span>
+          </div>
+        }
+
+        <!-- Content -->
+        <div class="min-w-0 grow">
+          <div class="flex items-center justify-between gap-2">
+            <span class="truncate font-medium text-gray-900 dark:text-gray-100">
+              {{ chat.name }}
+            </span>
+
+            <span class="shrink-0 text-sm text-gray-500 dark:text-gray-400">
+              {{ chat.lastMessage?.sentAt | chatDate }}
+            </span>
+          </div>
+
+          <span class="block truncate text-sm text-gray-500 dark:text-gray-400">
+            {{ chat.lastMessage?.content }}
+          </span>
+        </div>
+      </li>
     }
   </ul>
 </p-scrollPanel>
