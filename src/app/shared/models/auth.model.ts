@@ -17,7 +17,7 @@ export type RegisterUserRequest = {
 export type AuthResponse = {
   userInfo: BasicUserInfo;
   token: string;
-  expiresOn: Date;
+  expiresOn: string;
 };
 
 export type BasicUserInfo = {

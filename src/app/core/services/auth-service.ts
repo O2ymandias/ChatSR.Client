@@ -58,7 +58,7 @@ export class AuthService {
           if (res.isSuccess && res.data) {
             const { token, expiresOn } = res.data;
             this.token.set(token);
-            this.tokenExpiresOn.set(expiresOn);
+            this.tokenExpiresOn.set(new Date(expiresOn));
             this.persistToken();
             this._chatHubService.startConnection(token);
           }
@@ -74,7 +74,7 @@ export class AuthService {
           if (res.isSuccess && res.data) {
             const { token, expiresOn } = res.data;
             this.token.set(token);
-            this.tokenExpiresOn.set(expiresOn);
+            this.tokenExpiresOn.set(new Date(expiresOn));
             this.persistToken();
             this._chatHubService.startConnection(token);
           }
@@ -87,7 +87,7 @@ export class AuthService {
     const expiresOn = this.tokenExpiresOn();
     if (token && expiresOn) {
       localStorage.setItem('token', token);
-      localStorage.setItem('expiresOn', expiresOn.toString());
+      localStorage.setItem('expiresOn', expiresOn.toISOString());
     }
   }
 
