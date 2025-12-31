@@ -5,3 +5,7 @@
 
 @import './styles/animation.css';
 @import './styles/scrollpanel.css';
+
+.active-chat {
+  @apply bg-gray-200/50 dark:bg-gray-800/50;
+}

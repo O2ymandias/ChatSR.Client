@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { environment } from '../../environment';
-import { MessageResponse } from '../../shared/models/chat-hub.model';
+import { MessageResponse } from '../../shared/models/message.model';
 
 @Injectable({
   providedIn: 'root',

@@ -2,8 +2,8 @@ import { inject, Injectable } from '@angular/core';
 import { PagedApiResponse, PaginationParams } from '../../shared/models/shared.model';
 import { environment } from '../../environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { MessageResponse } from '../../shared/models/chat-hub.model';
 import { AuthService } from './auth-service';
+import { MessageResponse } from '../../shared/models/message.model';
 
 @Injectable({
   providedIn: 'root',

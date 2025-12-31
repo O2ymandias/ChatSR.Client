@@ -6,15 +6,17 @@
     <div
       class="flex items-center justify-between border-b-2 border-neutral-200 px-8 py-4 dark:border-neutral-800"
     >
-      <div class="flex items-center gap-3">
-        <img
+      <div class="flex items-center gap-2">
+        <!-- <img
           src="https://i.pravatar.cc/40?img=12"
           class="size-10 rounded-full object-cover"
           alt="Avatar"
-        />
+        /> -->
 
         <div>
-          <p class="font-bold text-neutral-900 dark:text-neutral-100">John Doe</p>
+          <p class="font-bold text-neutral-900 dark:text-neutral-100">
+            {{ 0 }}
+          </p>
           <p class="text-primary text-sm font-medium">Online</p>
         </div>
       </div>
@@ -73,36 +75,46 @@
     <!-- Messages -->
     <div class="bg-surface-50 dark:bg-surface-950 flex-1 overflow-hidden">
       <p-scroll-panel class="h-full">
-        <div class="space-y-4 px-10 py-6 lg:px-14">
-          <!-- Date Separator -->
-          <div class="flex justify-center py-4">
-            <span
-              class="rounded-full bg-slate-100 px-4 py-1.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200 dark:bg-slate-900/60 dark:text-slate-300 dark:ring-slate-700"
-            >
-              25/01/2023
-            </span>
-          </div>
+        @for (message of messages(); track message.messageId) {
+          <div class="space-y-4 px-10 py-6 lg:px-14">
+            <!-- Date Separator -->
+            <!-- <div class="flex justify-center py-4">
+              <span
+                class="rounded-full bg-slate-100 px-4 py-1.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200 dark:bg-slate-900/60 dark:text-slate-300 dark:ring-slate-700"
+              >
+                25/01/2023
+              </span>
+            </div> -->
 
-          <!-- Incoming Message -->
-          <div class="flex justify-start">
-            <div
-              class="max-w-[75%] rounded-lg rounded-tl-none bg-white px-4 py-2 text-sm text-gray-800 shadow-sm lg:max-w-[65%] dark:bg-gray-800 dark:text-slate-100 dark:ring-slate-700"
-            >
-              <p>Message text…</p>
-              <span class="mt-1 block text-xs text-slate-500 dark:text-slate-400">10:00 AM</span>
-            </div>
+            @if (message.senderId === currentUserId()) {
+              <!-- IsMe Message -->
+              <div class="flex justify-end">
+                <div
+                  class="max-w-[75%] rounded-lg rounded-tr-none bg-cyan-600 px-4 py-2 text-sm text-white shadow-sm lg:max-w-[65%] dark:bg-cyan-800"
+                >
+                  <p>{{ message.content }}</p>
+                  <span class="mt-1 block text-xs text-cyan-100">
+                    {{ message.sentAt | date: 'HH:mm a' }}
+                  </span>
+                </div>
+              </div>
+            } @else {
+              <!-- Other Message -->
+              <div class="flex justify-start">
+                <div
+                  class="max-w-[75%] rounded-lg rounded-tl-none bg-white px-4 py-2 text-sm text-gray-800 shadow-sm lg:max-w-[65%] dark:bg-gray-800 dark:text-slate-100 dark:ring-slate-700"
+                >
+                  <p>
+                    {{ message.content }}
+                  </p>
+                  <span class="mt-1 block text-xs text-slate-500 dark:text-slate-400">
+                    {{ message.sentAt | date: 'HH:mm a' }}
+                  </span>
+                </div>
+              </div>
+            }
           </div>
-
-          <!-- Outgoing Message -->
-          <div class="flex justify-end">
-            <div
-              class="max-w-[75%] rounded-lg rounded-tr-none bg-cyan-600 px-4 py-2 text-sm text-white shadow-sm lg:max-w-[65%] dark:bg-cyan-800"
-            >
-              <p>Message text…</p>
-              <span class="mt-1 block text-xs text-cyan-100">10:01 AM</span>
-            </div>
-          </div>
-        </div>
+        }
       </p-scroll-panel>
     </div>
 

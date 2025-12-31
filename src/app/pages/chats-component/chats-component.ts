@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { ChatsSidebarComponent } from './chats-sidebar-component/chats-sidebar-component';
-import { ChatsMainComponent } from './chats-main-component/chats-main-component';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-chats-component',
-  imports: [ChatsSidebarComponent, ChatsMainComponent],
+  imports: [ChatsSidebarComponent, RouterOutlet],
   templateUrl: './chats-component.html',
   styleUrl: './chats-component.css',
 })

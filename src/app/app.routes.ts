@@ -3,6 +3,7 @@ import { LoginComponent } from './pages/auth-component/login-component/login-com
 import { RegisterComponent } from './pages/auth-component/register-component/register-component';
 import { ChatsComponent } from './pages/chats-component/chats-component';
 import { authGuard } from './core/guards/auth-guard';
+import { ChatsMainComponent } from './pages/chats-component/chats-main-component/chats-main-component';
 
 export const routes: Routes = [
   {
@@ -16,6 +17,12 @@ export const routes: Routes = [
     component: ChatsComponent,
     title: 'Chats',
     canActivate: [authGuard],
+    children: [
+      {
+        path: ':chatId',
+        component: ChatsMainComponent,
+      },
+    ],
   },
 
   {

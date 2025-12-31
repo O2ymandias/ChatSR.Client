@@ -3,14 +3,15 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { ChatsService } from '../../../../core/services/chats-service';
 import { ChatListResponse } from '../../../../shared/models/chats.model';
 import { isPlatformBrowser } from '@angular/common';
-import { tap } from 'rxjs';
+import { map, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ChatDatePipe } from '../../../../shared/pipes/chat-date-pipe';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { RippleModule } from 'primeng/ripple';
 
 @Component({
   selector: 'app-chats-list-component',
-  imports: [ScrollPanelModule, ChatDatePipe, RippleModule],
+  imports: [ScrollPanelModule, ChatDatePipe, RouterLink, RouterLinkActive, RippleModule],
   templateUrl: './chats-list-component.html',
   styleUrl: './chats-list-component.css',
 })
@@ -31,6 +32,16 @@ export class ChatsListComponent implements OnInit {
     this._chatService
       .getUserChats$()
       .pipe(
+        map((res) => {
+          if (res.data) {
+            res.data.forEach((chat) => {
+              if (chat.lastMessage) {
+                chat.DisplayPictureUrl = chat.lastMessage.senderPictureUrl;
+              }
+            });
+          }
+          return res;
+        }),
         tap((res) => {
           if (res.data) this.userChats.set(res.data);
         }),
