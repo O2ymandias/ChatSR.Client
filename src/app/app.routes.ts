@@ -4,6 +4,7 @@ import { RegisterComponent } from './pages/auth-component/register-component/reg
 import { ChatsComponent } from './pages/chats-component/chats-component';
 import { authGuard } from './core/guards/auth-guard';
 import { ChatsMainComponent } from './pages/chats-component/chats-main-component/chats-main-component';
+import { EmptyChatStateComponent } from './pages/chats-component/empty-chat-state-component/empty-chat-state-component';
 
 export const routes: Routes = [
   {
@@ -18,6 +19,10 @@ export const routes: Routes = [
     title: 'Chats',
     canActivate: [authGuard],
     children: [
+      {
+        path: '',
+        component: EmptyChatStateComponent,
+      },
       {
         path: ':chatId',
         component: ChatsMainComponent,

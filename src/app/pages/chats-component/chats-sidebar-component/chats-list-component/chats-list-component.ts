@@ -3,11 +3,12 @@ import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { ChatsService } from '../../../../core/services/chats-service';
 import { ChatListResponse } from '../../../../shared/models/chats.model';
 import { isPlatformBrowser } from '@angular/common';
-import { map, tap } from 'rxjs';
+import { tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ChatDatePipe } from '../../../../shared/pipes/chat-date-pipe';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { RippleModule } from 'primeng/ripple';
+import { environment } from '../../../../environment';
 
 @Component({
   selector: 'app-chats-list-component',
@@ -19,6 +20,8 @@ export class ChatsListComponent implements OnInit {
   private readonly _chatService = inject(ChatsService);
   private readonly _platformId = inject(PLATFORM_ID);
   private readonly _destroyRef = inject(DestroyRef);
+
+  serverUrl = environment.serverUrl;
 
   userChats = signal<ChatListResponse[]>([]);
 
@@ -32,18 +35,9 @@ export class ChatsListComponent implements OnInit {
     this._chatService
       .getUserChats$()
       .pipe(
-        map((res) => {
-          if (res.data) {
-            res.data.forEach((chat) => {
-              if (chat.lastMessage) {
-                chat.DisplayPictureUrl = chat.lastMessage.senderPictureUrl;
-              }
-            });
-          }
-          return res;
-        }),
         tap((res) => {
           if (res.data) this.userChats.set(res.data);
+          console.log(this.userChats());
         }),
         takeUntilDestroyed(this._destroyRef),
       )

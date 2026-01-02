@@ -5,7 +5,7 @@ export type ChatResponse = {
   name: string | null;
   isGroup: boolean;
   createdAt: string;
-  DisplayPictureUrl: string | null;
+  displayPictureUrl: string | null;
 };
 
 export type ChatListResponse = {
@@ -15,5 +15,5 @@ export type ChatListResponse = {
   createdAt: string;
   memberCount: number;
   lastMessage: MessageResponse | null;
-  DisplayPictureUrl: string | null;
+  displayPictureUrl: string | null;
 };

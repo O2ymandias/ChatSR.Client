@@ -8,9 +8,9 @@
           class="flex cursor-pointer items-center gap-4 p-4 hover:bg-gray-200/50 dark:hover:bg-gray-800/50"
         >
           <!-- Avatar -->
-          @if (chat.DisplayPictureUrl) {
+          @if (chat.displayPictureUrl) {
             <img
-              [src]="chat.DisplayPictureUrl"
+              [src]="`${serverUrl}/${chat.displayPictureUrl}`"
               class="size-10 shrink-0 rounded-full object-cover"
             />
           } @else {
