@@ -4,27 +4,19 @@ import {
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
-
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
-
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { initializeChatHub } from './core/initializers/initialize-chat-hub';
 import { attachTokenInterceptor } from './core/interceptors/attach-token-interceptor';
+import { MessageService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(
-      routes,
-      withComponentInputBinding(),
-      // withViewTransitions(),
-      // withInMemoryScrolling({
-      //   scrollPositionRestoration: 'top',
-      // }),
-    ),
+    provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(withFetch(), withInterceptors([attachTokenInterceptor])),
     provideClientHydration(withEventReplay()),
     providePrimeNG({
@@ -40,6 +32,7 @@ export const appConfig: ApplicationConfig = {
       },
       ripple: true,
     }),
+    MessageService,
     provideAppInitializer(initializeChatHub),
   ],
 };

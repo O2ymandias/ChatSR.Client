@@ -83,7 +83,12 @@ export class ChatsMainComponent {
     this._messageService
       .getChatMessages$(chatId, pagination)
       .pipe(
-        tap((res) => this.messages.set(res.items)),
+        tap((res) =>
+          this.messages.set(
+            res.items.sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()),
+          ),
+        ),
+        tap(() => console.log(this.messages())),
         takeUntilDestroyed(this._destroyRef),
       )
       .subscribe();
@@ -95,7 +100,9 @@ export class ChatsMainComponent {
     this._chatService
       .getChatById$(chatId)
       .pipe(
-        tap((res) => this.chat.set(res.data)),
+        tap((res) => {
+          if (res.isSuccess && res.data) this.chat.set(res.data);
+        }),
         takeUntilDestroyed(this._destroyRef),
       )
       .subscribe();

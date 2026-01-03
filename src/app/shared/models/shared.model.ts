@@ -1,16 +1,16 @@
-export type ApiResponse<T> = {
+type ApiResponseBase = {
   isSuccess: boolean;
-  data: T | null;
   error: Error | null;
   timestamp: Date;
 };
 
-export type PagedApiResponse<T> = {
-  isSuccess: boolean;
+export type ApiResponse<T> = ApiResponseBase & {
+  data?: T | null;
+};
+
+export type PagedApiResponse<T> = ApiResponseBase & {
   items: T[];
   pagination: PaginationMetadata;
-  error: Error | null;
-  timestamp: Date;
 };
 
 export type Error = {

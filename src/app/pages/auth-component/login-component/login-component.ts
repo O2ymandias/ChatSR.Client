@@ -25,7 +25,6 @@ import { PasswordModule } from 'primeng/password';
   ],
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',
-  providers: [MessageService],
 })
 export class LoginComponent {
   private readonly _authService = inject(AuthService);
