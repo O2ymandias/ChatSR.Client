@@ -1,9 +1,11 @@
-<div class="flex">
+<div class="grid grid-cols-4">
   <!-- Sidebar -->
-  <app-chats-sidebar-component />
+  <div class="col-span-full md:col-span-1">
+    <app-chats-sidebar-component />
+  </div>
 
   <!-- Main Content -->
-  <div class="flex-1">
+  <div class="col-span-full md:col-span-3">
     <router-outlet />
   </div>
 </div>

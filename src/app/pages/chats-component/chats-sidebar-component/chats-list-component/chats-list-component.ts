@@ -37,7 +37,6 @@ export class ChatsListComponent implements OnInit {
       .pipe(
         tap((res) => {
           if (res.data) this.userChats.set(res.data);
-          console.log(this.userChats());
         }),
         takeUntilDestroyed(this._destroyRef),
       )

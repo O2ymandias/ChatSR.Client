@@ -88,7 +88,6 @@ export class ChatsMainComponent {
             res.items.sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()),
           ),
         ),
-        tap(() => console.log(this.messages())),
         takeUntilDestroyed(this._destroyRef),
       )
       .subscribe();

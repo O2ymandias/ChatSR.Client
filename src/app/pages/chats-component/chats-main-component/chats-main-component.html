@@ -1,21 +1,22 @@
-<div class="h-screen overflow-hidden p-6">
+<div class="h-screen overflow-hidden p-4">
   <div
     class="flex h-full flex-col justify-between rounded-2xl ring ring-neutral-200 dark:ring-neutral-800"
   >
     <!-- Header -->
     <div
-      class="flex items-center justify-between border-b-2 border-neutral-200 px-8 py-4 dark:border-neutral-800"
+      class="flex items-center justify-between gap-4 border-b-2 border-neutral-200 px-8 py-4 dark:border-neutral-800"
     >
+      <!-- Chat Info -->
       <div class="flex items-center gap-2">
         <!-- Avatar -->
         @if (chat()?.displayPictureUrl) {
           <img
             [src]="`${serverUrl}/${chat()?.displayPictureUrl}`"
-            class="size-10 shrink-0 rounded-full object-cover"
+            class="size-10 rounded-full object-cover"
           />
         } @else {
           <div
-            class="flex size-10 shrink-0 items-center justify-center rounded-full"
+            class="flex size-10 items-center justify-center rounded-full"
             [class]="
               chat()?.isGroup
                 ? 'bg-linear-to-br from-teal-400 via-teal-500 to-teal-600'
@@ -41,14 +42,14 @@
       <div
         [class.opacity-100]="searchVisible"
         [class.opacity-0]="!searchVisible"
-        class="relative transition-all duration-150 ease-in-out"
+        class="relative flex flex-1 justify-center transition-all duration-150 ease-in-out"
       >
         <input
           pInputText
           [(ngModel)]="searchQuery"
           type="text"
           placeholder="Search messages..."
-          class="w-80 rounded-full focus:border-cyan-600 dark:focus:border-cyan-700"
+          class="w-full max-w-96 rounded-full focus:border-cyan-600 dark:focus:border-cyan-700"
         />
 
         <!-- Clear button -->
@@ -62,8 +63,8 @@
         }
       </div>
 
+      <!-- Actions -->
       <div class="flex items-center gap-2">
-        <!-- Search  -->
         @if (searchMessagesVisible()) {
           <p-button
             icon="pi pi-times"
@@ -82,7 +83,6 @@
           />
         }
 
-        <!-- More  -->
         <p-button icon="pi pi-ellipsis-v" rounded text severity="secondary" />
       </div>
     </div>
@@ -108,8 +108,8 @@
                   class="max-w-[75%] rounded-lg rounded-tr-none bg-cyan-600 px-4 py-2 text-sm text-white shadow-sm lg:max-w-[65%] dark:bg-cyan-800"
                 >
                   <p>{{ message.content }}</p>
-                  <span class="mt-1 block text-xs text-cyan-100">
-                    {{ message.sentAt | date: 'HH:mm a' }}
+                  <span class="mt-1 block text-xs text-cyan-100 select-none">
+                    {{ message.sentAt | date: 'shortTime' }}
                   </span>
                 </div>
               </div>
@@ -122,8 +122,8 @@
                   <p>
                     {{ message.content }}
                   </p>
-                  <span class="mt-1 block text-xs text-slate-500 dark:text-slate-400">
-                    {{ message.sentAt | date: 'HH:mm a' }}
+                  <span class="mt-1 block text-xs text-slate-500 select-none dark:text-slate-400">
+                    {{ message.sentAt | date: 'shortTime' }}
                   </span>
                 </div>
               </div>
