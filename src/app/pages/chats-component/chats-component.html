@@ -1,11 +1,15 @@
 <div class="grid grid-cols-4">
   <!-- Sidebar -->
-  <div class="col-span-full md:col-span-1">
+  <div
+    class="col-span-full md:col-span-1"
+    [class.hidden]="isMobile() && !sidebarVisible()"
+    [class.md:block]="true"
+  >
     <app-chats-sidebar-component />
   </div>
 
   <!-- Main Content -->
-  <div class="col-span-full md:col-span-3">
+  <div class="col-span-full md:col-span-3" [class.hidden]="isMobile() && sidebarVisible()">
     <router-outlet />
   </div>
 </div>

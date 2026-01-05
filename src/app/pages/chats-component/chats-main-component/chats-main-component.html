@@ -6,34 +6,39 @@
     <div
       class="flex items-center justify-between gap-4 border-b-2 border-neutral-200 px-8 py-4 dark:border-neutral-800"
     >
-      <!-- Chat Info -->
       <div class="flex items-center gap-2">
-        <!-- Avatar -->
-        @if (chat()?.displayPictureUrl) {
-          <img
-            [src]="`${serverUrl}/${chat()?.displayPictureUrl}`"
-            class="size-10 rounded-full object-cover"
-          />
-        } @else {
-          <div
-            class="flex size-10 items-center justify-center rounded-full"
-            [class]="
-              chat()?.isGroup
-                ? 'bg-linear-to-br from-teal-400 via-teal-500 to-teal-600'
-                : 'bg-linear-to-br from-sky-400 via-sky-500 to-sky-600'
-            "
-          >
-            <span class="font-semibold text-white uppercase">
-              {{ chat.name.charAt(0) }}
-            </span>
-          </div>
-        }
+        <!-- Back Button -->
+        <p-button icon="pi pi-arrow-left" rounded text severity="secondary" (click)="goBack()" />
 
-        <div>
-          <p class="font-bold text-neutral-900 dark:text-neutral-100">
-            {{ chat()?.name }}
-          </p>
-          <p class="text-primary text-sm font-medium">Online</p>
+        <!-- Chat Info -->
+        <div class="flex items-center gap-2">
+          <!-- Avatar -->
+          @if (chat()?.displayPictureUrl) {
+            <img
+              [src]="`${serverUrl}/${chat()?.displayPictureUrl}`"
+              class="size-10 rounded-full object-cover"
+            />
+          } @else {
+            <div
+              class="flex size-10 items-center justify-center rounded-full"
+              [class]="
+                chat()?.isGroup
+                  ? 'bg-linear-to-br from-teal-400 via-teal-500 to-teal-600'
+                  : 'bg-linear-to-br from-sky-400 via-sky-500 to-sky-600'
+              "
+            >
+              <span class="font-semibold text-white uppercase">
+                {{ chat.name.charAt(0) }}
+              </span>
+            </div>
+          }
+
+          <div>
+            <p class="font-bold text-neutral-900 dark:text-neutral-100">
+              {{ chat()?.name }}
+            </p>
+            <p class="text-primary text-sm font-medium">Online</p>
+          </div>
         </div>
       </div>
 

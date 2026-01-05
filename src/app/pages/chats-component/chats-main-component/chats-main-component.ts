@@ -23,6 +23,8 @@ import { PaginationParams } from '../../../shared/models/shared.model';
 import { ChatResponse } from '../../../shared/models/chats.model';
 import { ChatsService } from '../../../core/services/chats-service';
 import { environment } from '../../../environment';
+import { NavigationService } from '../../../core/services/navigation-service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-chats-main-component',
@@ -43,6 +45,8 @@ export class ChatsMainComponent {
   private readonly _chatService = inject(ChatsService);
   private readonly _platformId = inject(PLATFORM_ID);
   private readonly _destroyRef = inject(DestroyRef);
+  private readonly _router = inject(Router);
+  private readonly _navigationService = inject(NavigationService);
 
   constructor() {
     effect(() => {
@@ -105,5 +109,10 @@ export class ChatsMainComponent {
         takeUntilDestroyed(this._destroyRef),
       )
       .subscribe();
+  }
+
+  goBack() {
+    this._navigationService.showSidebarView();
+    this._router.navigate(['/chats']);
   }
 }
