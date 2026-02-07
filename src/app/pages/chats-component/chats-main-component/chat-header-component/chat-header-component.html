@@ -1,0 +1,102 @@
+<div
+  class="flex items-center justify-between gap-4 border-b-2 border-neutral-200 px-8 py-4 dark:border-neutral-800"
+>
+  <!-- Chat Info -->
+  <div class="flex items-center gap-2">
+    <!-- Back Button -->
+    <p-button icon="pi pi-arrow-left" rounded text severity="secondary" (click)="goBack()" />
+
+    <!-- Info -->
+    <div class="flex items-center gap-2">
+      <!-- Avatar -->
+      @if (chat()?.displayPictureUrl) {
+        <img
+          [src]="`${serverUrl}/${chat()?.displayPictureUrl}`"
+          class="size-10 rounded-full object-cover"
+        />
+      } @else {
+        <div
+          class="flex size-10 items-center justify-center rounded-full"
+          [class]="
+            chat()?.isGroup
+              ? 'bg-linear-to-br from-teal-400 via-teal-500 to-teal-600'
+              : 'bg-linear-to-br from-sky-400 via-sky-500 to-sky-600'
+          "
+        >
+          <span class="font-semibold text-white uppercase">
+            {{ chat.name.charAt(0) }}
+          </span>
+        </div>
+      }
+
+      <!-- Content -->
+      <div>
+        <p class="font-bold text-neutral-900 dark:text-neutral-100">
+          {{ chat()?.name }}
+        </p>
+
+        @if (typingUsers().length > 0) {
+          <p class="typing-indicator text-primary flex items-center gap-1 text-sm font-medium">
+            <span>{{ typingText() }}</span>
+            <span class="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </p>
+        } @else {
+          <p class="text-primary text-sm font-medium">Online</p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Input -->
+  @let searchVisible = searchMessagesVisible();
+  <div
+    [class.opacity-100]="searchVisible"
+    [class.opacity-0]="!searchVisible"
+    class="relative flex flex-1 justify-center transition-all duration-150 ease-in-out"
+  >
+    <input
+      pInputText
+      [(ngModel)]="searchQuery"
+      type="text"
+      placeholder="Search messages..."
+      class="w-full max-w-96 rounded-full focus:border-cyan-600 dark:focus:border-cyan-700"
+    />
+
+    <!-- Clear button -->
+    @if (searchQuery()) {
+      <button
+        class="absolute top-1/2 right-2 flex size-7 -translate-y-1/2 animate-[fadeIn_150ms_ease-out_forwards] items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 active:bg-gray-200 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-400 dark:active:bg-gray-600"
+        (click)="clearSearch()"
+      >
+        <i class="pi pi-times text-sm"></i>
+      </button>
+    }
+  </div>
+
+  <!-- Actions -->
+  <div class="flex items-center gap-2">
+    @if (searchMessagesVisible()) {
+      <p-button
+        icon="pi pi-times"
+        rounded
+        outlined
+        severity="danger"
+        (click)="searchMessagesVisible.set(false)"
+      />
+    } @else {
+      <p-button
+        icon="pi pi-search"
+        rounded
+        text
+        severity="secondary"
+        (click)="searchMessagesVisible.set(true)"
+      />
+    }
+
+    <p-button icon="pi pi-ellipsis-v" rounded text severity="secondary" />
+  </div>
+</div>

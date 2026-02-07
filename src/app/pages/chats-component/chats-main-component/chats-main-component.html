@@ -2,155 +2,17 @@
   <div
     class="flex h-full flex-col justify-between rounded-2xl ring ring-neutral-200 dark:ring-neutral-800"
   >
-    <!-- Header -->
+    <!-- Chat Header -->
+    <app-chat-header-component [chatId]="chatId()" />
+
+    <!-- Chat Messages -->
     <div
-      class="flex items-center justify-between gap-4 border-b-2 border-neutral-200 px-8 py-4 dark:border-neutral-800"
+      class="bg-surface-50 dark:bg-surface-950 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-300/50 hover:scrollbar-thumb-slate-400/70 dark:scrollbar-thumb-slate-700 dark:hover:scrollbar-thumb-slate-600 flex-1 overflow-y-auto"
     >
-      <div class="flex items-center gap-2">
-        <!-- Back Button -->
-        <p-button icon="pi pi-arrow-left" rounded text severity="secondary" (click)="goBack()" />
-
-        <!-- Chat Info -->
-        <div class="flex items-center gap-2">
-          <!-- Avatar -->
-          @if (chat()?.displayPictureUrl) {
-            <img
-              [src]="`${serverUrl}/${chat()?.displayPictureUrl}`"
-              class="size-10 rounded-full object-cover"
-            />
-          } @else {
-            <div
-              class="flex size-10 items-center justify-center rounded-full"
-              [class]="
-                chat()?.isGroup
-                  ? 'bg-linear-to-br from-teal-400 via-teal-500 to-teal-600'
-                  : 'bg-linear-to-br from-sky-400 via-sky-500 to-sky-600'
-              "
-            >
-              <span class="font-semibold text-white uppercase">
-                {{ chat.name.charAt(0) }}
-              </span>
-            </div>
-          }
-
-          <div>
-            <p class="font-bold text-neutral-900 dark:text-neutral-100">
-              {{ chat()?.name }}
-            </p>
-            <p class="text-primary text-sm font-medium">Online</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Search Input -->
-      @let searchVisible = searchMessagesVisible();
-      <div
-        [class.opacity-100]="searchVisible"
-        [class.opacity-0]="!searchVisible"
-        class="relative flex flex-1 justify-center transition-all duration-150 ease-in-out"
-      >
-        <input
-          pInputText
-          [(ngModel)]="searchQuery"
-          type="text"
-          placeholder="Search messages..."
-          class="w-full max-w-96 rounded-full focus:border-cyan-600 dark:focus:border-cyan-700"
-        />
-
-        <!-- Clear button -->
-        @if (searchQuery()) {
-          <button
-            class="absolute top-1/2 right-2 flex size-7 -translate-y-1/2 animate-[fadeIn_150ms_ease-out_forwards] items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 active:bg-gray-200 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-400 dark:active:bg-gray-600"
-            (click)="clearSearch()"
-          >
-            <i class="pi pi-times text-sm"></i>
-          </button>
-        }
-      </div>
-
-      <!-- Actions -->
-      <div class="flex items-center gap-2">
-        @if (searchMessagesVisible()) {
-          <p-button
-            icon="pi pi-times"
-            rounded
-            outlined
-            severity="danger"
-            (click)="searchMessagesVisible.set(false)"
-          />
-        } @else {
-          <p-button
-            icon="pi pi-search"
-            rounded
-            text
-            severity="secondary"
-            (click)="searchMessagesVisible.set(true)"
-          />
-        }
-
-        <p-button icon="pi pi-ellipsis-v" rounded text severity="secondary" />
-      </div>
+      <app-chat-messages-component [chatId]="chatId()" />
     </div>
 
-    <!-- Messages -->
-    <div class="bg-surface-50 dark:bg-surface-950 flex-1 overflow-hidden">
-      <p-scroll-panel class="h-full">
-        @for (message of messages(); track message.messageId) {
-          <div class="space-y-4 px-10 py-6 lg:px-14">
-            <!-- Date Separator -->
-            <!-- <div class="flex justify-center py-4">
-              <span
-                class="rounded-full bg-slate-100 px-4 py-1.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200 dark:bg-slate-900/60 dark:text-slate-300 dark:ring-slate-700"
-              >
-                25/01/2023
-              </span>
-            </div> -->
-
-            @if (message.senderId === currentUserId()) {
-              <!-- IsMe Message -->
-              <div class="flex justify-end">
-                <div
-                  class="max-w-[75%] rounded-lg rounded-tr-none bg-cyan-600 px-4 py-2 text-sm text-white shadow-sm lg:max-w-[65%] dark:bg-cyan-800"
-                >
-                  <p>{{ message.content }}</p>
-                  <span class="mt-1 block text-xs text-cyan-100 select-none">
-                    {{ message.sentAt | date: 'shortTime' }}
-                  </span>
-                </div>
-              </div>
-            } @else {
-              <!-- Other Message -->
-              <div class="flex justify-start">
-                <div
-                  class="max-w-[75%] rounded-lg rounded-tl-none bg-white px-4 py-2 text-sm text-gray-800 shadow-sm lg:max-w-[65%] dark:bg-gray-800 dark:text-slate-100 dark:ring-slate-700"
-                >
-                  <p>
-                    {{ message.content }}
-                  </p>
-                  <span class="mt-1 block text-xs text-slate-500 select-none dark:text-slate-400">
-                    {{ message.sentAt | date: 'shortTime' }}
-                  </span>
-                </div>
-              </div>
-            }
-          </div>
-        }
-      </p-scroll-panel>
-    </div>
-
-    <!-- Input -->
-    <div class="border-t-2 border-neutral-200 px-8 py-4 dark:border-neutral-800">
-      <div class="flex items-center gap-4">
-        <textarea
-          pInputTextarea
-          autoResize
-          rows="1"
-          placeholder="Type a message"
-          class="w-full rounded-full px-4 focus:border-cyan-600 dark:focus:border-cyan-700"
-        ></textarea>
-
-        <p-button rounded text icon="pi pi-send" severity="info" />
-      </div>
-    </div>
+    <!-- Chat Input -->
+    <app-chat-input-component [chatId]="chatId()" />
   </div>
 </div>

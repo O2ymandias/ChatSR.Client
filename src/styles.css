@@ -4,7 +4,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @import './styles/animation.css';
-@import './styles/scrollpanel.css';
+
+/* Tailwind scrollbar */
+@plugin 'tailwind-scrollbar';
 
 .active-chat {
   @apply bg-gray-200/50 dark:bg-gray-800/50;

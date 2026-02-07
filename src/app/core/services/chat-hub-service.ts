@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { environment } from '../../environment';
 import { MessageResponse } from '../../shared/models/message.model';
+import { TypingUser } from '../../shared/models/chat-hub.model';
 
 @Injectable({
   providedIn: 'root',
@@ -14,10 +15,12 @@ export class ChatHubService {
   // Internal signals
   private _lastMessage = signal<MessageResponse | null>(null);
   private _messages = signal<MessageResponse[]>([]);
+  private _typingUsers = signal<TypingUser[]>([]);
 
   // Exposed as readonly signals
   messages = this._messages.asReadonly();
   lastMessage = this._lastMessage.asReadonly();
+  typingUsers = this._typingUsers.asReadonly();
 
   async startConnection(accessToken: string): Promise<void> {
     this._hubConnection = new signalR.HubConnectionBuilder()
@@ -47,6 +50,7 @@ export class ChatHubService {
     this._startHeartbeatRelatedEvents();
 
     this._onReceiveMessage();
+    this._onUserTyping();
   }
 
   private _startHeartbeatRelatedEvents(): void {
@@ -88,5 +92,32 @@ export class ChatHubService {
       this._lastMessage.set(message);
       this._messages.update((messages) => [...messages, message]);
     });
+  }
+
+  async startTyping(chatId: string): Promise<void> {
+    if (!this._hubConnection) return;
+    await this._hubConnection.invoke('StartTyping', chatId);
+  }
+
+  private async _onUserTyping(): Promise<void> {
+    if (!this._hubConnection) return;
+
+    this._hubConnection.on('UserTyping', (chatId: string, userId: string) => {
+      const typingUser: TypingUser = { chatId, userId };
+      
+      this._typingUsers.update((users) => {
+        if (users.some((u) => u.chatId === typingUser.chatId && u.userId === typingUser.userId)) {
+          return users;
+        }
+        return [...users, typingUser];
+      });
+
+      console.log(`User ${typingUser.userId} is typing in chat ${typingUser.chatId}`);
+    });
+  }
+
+  async StopTyping(chatId: string): Promise<void> {
+    if (!this._hubConnection) return;
+    await this._hubConnection.invoke('StopTyping', chatId);
   }
 }
