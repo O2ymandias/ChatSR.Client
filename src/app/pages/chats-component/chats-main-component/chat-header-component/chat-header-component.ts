@@ -7,9 +7,10 @@ import {
   PLATFORM_ID,
   DestroyRef,
   effect,
+  OnInit,
 } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { ChatResponse } from '../../../../shared/models/chats.model';
+import { ChatMemberResponse, ChatResponse } from '../../../../shared/models/chats.model';
 import { environment } from '../../../../environment';
 import { ChatHubService } from '../../../../core/services/chat-hub-service';
 import { NavigationService } from '../../../../core/services/navigation-service';
@@ -27,7 +28,7 @@ import { InputTextModule } from 'primeng/inputtext';
   templateUrl: './chat-header-component.html',
   styleUrl: './chat-header-component.css',
 })
-export class ChatHeaderComponent {
+export class ChatHeaderComponent implements OnInit {
   private readonly _navigationService = inject(NavigationService);
   private readonly _chatService = inject(ChatsService);
   private readonly _chatHubService = inject(ChatHubService);
@@ -38,24 +39,38 @@ export class ChatHeaderComponent {
   constructor() {
     effect(() => {
       const chatId = this.chatId();
+
       this._initializeChat(chatId);
+      this._initializeChatMembers(chatId);
     });
   }
+  ngOnInit(): void {}
 
   chatId = input.required<string>();
   chat = signal<ChatResponse | null>(null);
+  chatMembers = signal<ChatMemberResponse[]>([]);
+
   serverUrl = environment.serverUrl;
   typingUsers = this._chatHubService.typingUsers;
+  typingUsersInCurrentChat = computed(() =>
+    this.typingUsers().filter((u) => u.chatId === this.chatId()),
+  );
 
   searchQuery = signal('');
   searchMessagesVisible = signal(false);
 
   typingText = computed(() => {
-    const count = this.typingUsers().length;
+    const count = this.typingUsersInCurrentChat().length;
+    const typingUsers = this.chatMembers().filter((u) =>
+      this.typingUsersInCurrentChat()
+        .map((u) => u.userId)
+        .includes(u.userId),
+    );
 
     if (count === 0) return '';
-    if (count === 1) return 'typing';
-    if (count === 2) return 'typing';
+    if (count === 1) return `${typingUsers[0].displayName} is typing`;
+    if (count === 2)
+      return `${typingUsers[0].displayName} and ${typingUsers[1].displayName} are typing`;
     return `${count} people typing`;
   });
 
@@ -76,6 +91,21 @@ export class ChatHeaderComponent {
       .pipe(
         tap((res) => {
           if (res.isSuccess && res.data) this.chat.set(res.data);
+        }),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe();
+  }
+
+  private _initializeChatMembers(chatId: string): void {
+    if (!isPlatformBrowser(this._platformId)) return;
+
+    this._chatService
+      .getChatMembers$(chatId)
+      .pipe(
+        tap((res) => {
+          if (res.isSuccess && res.data) this.chatMembers.set(res.data);
+          console.log(this.chatMembers());
         }),
         takeUntilDestroyed(this._destroyRef),
       )

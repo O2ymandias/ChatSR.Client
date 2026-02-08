@@ -17,3 +17,12 @@ export type ChatListResponse = {
   lastMessage: MessageResponse | null;
   displayPictureUrl: string | null;
 };
+
+export type ChatMemberResponse = {
+  chatId: string;
+  userId: string;
+  displayName: string;
+  pictureUrl: string | null;
+  role: string;
+  joinedAt: string;
+};

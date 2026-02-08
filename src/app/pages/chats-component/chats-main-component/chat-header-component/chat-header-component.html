@@ -35,8 +35,8 @@
           {{ chat()?.name }}
         </p>
 
-        @if (typingUsers().length > 0) {
-          <p class="typing-indicator text-primary flex items-center gap-1 text-sm font-medium">
+        @if (typingUsersInCurrentChat().length > 0) {
+          <p class="typing-indicator text-primary flex items-baseline gap-1 text-sm font-medium">
             <span>{{ typingText() }}</span>
             <span class="typing-dots">
               <span></span>
