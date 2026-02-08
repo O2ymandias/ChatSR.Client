@@ -1,25 +1,22 @@
+import { TypingUser } from './../../shared/models/chat-hub.model';
 import { Injectable, signal } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { environment } from '../../environment';
-import { MessageResponse } from '../../shared/models/message.model';
-import { TypingUser } from '../../shared/models/chat-hub.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChatHubService {
   private _hubConnection: signalR.HubConnection | null = null;
+
+  // Heartbeat
   private readonly HEART_BEAT_INTERVAL = 30_000;
-  private heartbeatTimer: NodeJS.Timeout | null = null;
+  private heartbeatTimer: number | null = null;
 
-  // Internal signals
-  private _lastMessage = signal<MessageResponse | null>(null);
-  private _messages = signal<MessageResponse[]>([]);
+  // Typing
+  private readonly TYPING_TIMEOUT = 3_000; // 3 seconds
+  private typingTimeouts: Map<string, number> = new Map();
   private _typingUsers = signal<TypingUser[]>([]);
-
-  // Exposed as readonly signals
-  messages = this._messages.asReadonly();
-  lastMessage = this._lastMessage.asReadonly();
   typingUsers = this._typingUsers.asReadonly();
 
   async startConnection(accessToken: string): Promise<void> {
@@ -46,50 +43,67 @@ export class ChatHubService {
     this._stopHeartbeat();
   }
 
-  async sendMessage(chatId: string, content: string): Promise<void> {
-    if (!this._hubConnection) return;
-    await this._hubConnection.invoke('SendMessage', chatId, { content });
+  ///////////////////////////////////////////////////////////////////////////////////////
+  // Event handlers
+  ///////////////////////////////////////////////////////////////////////////////////////
+
+  private _setupEventHandlers(): void {
+    this._startHeartbeatRelatedEvents();
+    this._onUserTyping();
+    this._onUserStoppedTyping();
   }
 
-  private _onReceiveMessage(): void {
-    if (!this._hubConnection) return;
-
-    this._hubConnection.on('ReceiveMessage', (message: MessageResponse) => {
-      this._lastMessage.set(message);
-      this._messages.update((messages) => [...messages, message]);
-    });
-  }
+  ///////////////////////////////////////////////////////////////////////////////////////
+  // Typing
+  ///////////////////////////////////////////////////////////////////////////////////////
 
   async startTyping(chatId: string): Promise<void> {
     if (!this._hubConnection) return;
+
+    // Clear existing timeout
+    const existingTimeout = this.typingTimeouts.get(chatId);
+    if (existingTimeout) {
+      clearTimeout(existingTimeout);
+    }
+
+    // Invoke the hub method (StartTyping) on the server
     await this._hubConnection.invoke('StartTyping', chatId);
+
+    // Auto-stop typing after timeout (3 seconds)
+    const timeoutId = window.setTimeout(() => {
+      this.stopTyping(chatId);
+    }, this.TYPING_TIMEOUT);
+
+    this.typingTimeouts.set(chatId, timeoutId);
   }
 
   async stopTyping(chatId: string): Promise<void> {
     if (!this._hubConnection) return;
-    await this._hubConnection.invoke('UserStoppedTyping', chatId);
-  }
 
-  private _setupEventHandlers(): void {
-    this._startHeartbeatRelatedEvents();
+    const existingTimeout = this.typingTimeouts.get(chatId);
+    if (!existingTimeout) return;
 
-    this._onReceiveMessage();
-    this._onUserTyping();
-    this._onUserStoppedTyping();
+    // Clear timeout
+    clearTimeout(existingTimeout);
+    this.typingTimeouts.delete(chatId);
+
+    await this._hubConnection.invoke('StopTyping', chatId);
   }
 
   private async _onUserTyping(): Promise<void> {
     if (!this._hubConnection) return;
 
     this._hubConnection.on('UserTyping', (chatId: string, userId: string) => {
-      const typingUser: TypingUser = { chatId, userId };
+      this._addTypingUser({ chatId, userId });
+    });
+  }
 
-      this._typingUsers.update((users) => {
-        if (users.some((u) => u.chatId === typingUser.chatId && u.userId === typingUser.userId)) {
-          return users;
-        }
-        return [...users, typingUser];
-      });
+  private _addTypingUser(typingUser: TypingUser): void {
+    this._typingUsers.update((users) => {
+      if (users.some((u) => u.chatId === typingUser.chatId && u.userId === typingUser.userId)) {
+        return users;
+      }
+      return [...users, typingUser];
     });
   }
 
@@ -97,11 +111,24 @@ export class ChatHubService {
     if (!this._hubConnection) return;
 
     this._hubConnection.on('UserStoppedTyping', (chatId: string, userId: string) => {
-      this._typingUsers.update((users) =>
-        users.filter((u) => !(u.chatId === chatId && u.userId === userId)),
-      );
+      this._removeTypingUser({ chatId, userId });
     });
   }
+
+  private _removeTypingUser(typingUser: TypingUser): void {
+    this._typingUsers.update((users) =>
+      users.filter((u) => !(u.chatId === typingUser.chatId && u.userId === typingUser.userId)),
+    );
+  }
+
+  private _cleanupTypingTimeouts(): void {
+    this.typingTimeouts.forEach((timeout) => clearTimeout(timeout));
+    this.typingTimeouts.clear();
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////
+  // Heartbeat
+  ///////////////////////////////////////////////////////////////////////////////////////
 
   private _startHeartbeatRelatedEvents(): void {
     if (!this._hubConnection) return;
@@ -112,21 +139,23 @@ export class ChatHubService {
 
     this._hubConnection.onclose(() => this._stopHeartbeat());
   }
-
   private async _heartbeat(): Promise<void> {
     if (this._hubConnection?.state === signalR.HubConnectionState.Connected) {
       await this._hubConnection.invoke('Heartbeat');
     }
   }
-
   private _startHeartbeat(): void {
     this._stopHeartbeat();
-    this.heartbeatTimer = setInterval(() => this._heartbeat(), this.HEART_BEAT_INTERVAL);
+    this.heartbeatTimer = window.setInterval(() => this._heartbeat(), this.HEART_BEAT_INTERVAL);
   }
-
   private _stopHeartbeat(): void {
     if (!this.heartbeatTimer) return;
-    clearInterval(this.heartbeatTimer);
+    window.clearInterval(this.heartbeatTimer);
     this.heartbeatTimer = null;
+  }
+
+  ngOnDestroy() {
+    this.stopConnection();
+    this._cleanupTypingTimeouts();
   }
 }
