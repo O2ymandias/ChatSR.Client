@@ -19,6 +19,10 @@ export class ChatHubService {
   private _typingUsers = signal<TypingUser[]>([]);
   typingUsers = this._typingUsers.asReadonly();
 
+  private readonly TYPING_DEBOUNCE = 1_000; // 1 second debounce
+  private typingDebounceTimers: Map<string, number> = new Map();
+  private isTypingForChat: Map<string, boolean> = new Map();
+
   async startConnection(accessToken: string): Promise<void> {
     this._hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(environment.chatHubUrl, {
@@ -46,7 +50,6 @@ export class ChatHubService {
   ///////////////////////////////////////////////////////////////////////////////////////
   // Event handlers
   ///////////////////////////////////////////////////////////////////////////////////////
-
   private _setupEventHandlers(): void {
     this._startHeartbeatRelatedEvents();
     this._onUserTyping();
@@ -56,20 +59,50 @@ export class ChatHubService {
   ///////////////////////////////////////////////////////////////////////////////////////
   // Typing
   ///////////////////////////////////////////////////////////////////////////////////////
-
-  async startTyping(chatId: string): Promise<void> {
+  async notifyTyping(chatId: string): Promise<void> {
     if (!this._hubConnection) return;
 
+    // Clear existing debounce timer
+    const existingDebounce = this.typingDebounceTimers.get(chatId);
+    if (existingDebounce) {
+      clearTimeout(existingDebounce);
+    }
+
+    // If not already typing, send the StartTyping event immediately
+    if (!this.isTypingForChat.get(chatId)) {
+      await this._startTyping(chatId);
+    }
+
+    // Reset the auto-stop timeout
+    this._resetTypingTimeout(chatId);
+
+    // Set up debounce timer to prevent rapid consecutive calls
+    const debounceTimer = window.setTimeout(() => {
+      this.typingDebounceTimers.delete(chatId);
+    }, this.TYPING_DEBOUNCE);
+
+    this.typingDebounceTimers.set(chatId, debounceTimer);
+  }
+
+  private async _startTyping(chatId: string): Promise<void> {
+    if (!this._hubConnection) return;
+
+    try {
+      await this._hubConnection.invoke('StartTyping', chatId);
+      this.isTypingForChat.set(chatId, true);
+    } catch (error) {
+      console.error('Error sending typing notification:', error);
+    }
+  }
+
+  private _resetTypingTimeout(chatId: string): void {
     // Clear existing timeout
     const existingTimeout = this.typingTimeouts.get(chatId);
     if (existingTimeout) {
       clearTimeout(existingTimeout);
     }
 
-    // Invoke the hub method (StartTyping) on the server
-    await this._hubConnection.invoke('StartTyping', chatId);
-
-    // Auto-stop typing after timeout (3 seconds)
+    // Auto-stop typing after timeout (3 seconds of inactivity)
     const timeoutId = window.setTimeout(() => {
       this.stopTyping(chatId);
     }, this.TYPING_TIMEOUT);
@@ -79,15 +112,28 @@ export class ChatHubService {
 
   async stopTyping(chatId: string): Promise<void> {
     if (!this._hubConnection) return;
-
-    const existingTimeout = this.typingTimeouts.get(chatId);
-    if (!existingTimeout) return;
+    if (!this.isTypingForChat.get(chatId)) return;
 
     // Clear timeout
-    clearTimeout(existingTimeout);
-    this.typingTimeouts.delete(chatId);
+    const existingTimeout = this.typingTimeouts.get(chatId);
+    if (existingTimeout) {
+      clearTimeout(existingTimeout);
+      this.typingTimeouts.delete(chatId);
+    }
 
-    await this._hubConnection.invoke('StopTyping', chatId);
+    // Clear debounce timer
+    const existingDebounce = this.typingDebounceTimers.get(chatId);
+    if (existingDebounce) {
+      clearTimeout(existingDebounce);
+      this.typingDebounceTimers.delete(chatId);
+    }
+
+    try {
+      await this._hubConnection.invoke('StopTyping', chatId);
+      this.isTypingForChat.set(chatId, false);
+    } catch (error) {
+      console.error('Error sending stop typing notification:', error);
+    }
   }
 
   private async _onUserTyping(): Promise<void> {
@@ -124,6 +170,10 @@ export class ChatHubService {
   private _cleanupTypingTimeouts(): void {
     this.typingTimeouts.forEach((timeout) => clearTimeout(timeout));
     this.typingTimeouts.clear();
+
+    this.typingDebounceTimers.forEach((timer) => clearTimeout(timer));
+    this.typingDebounceTimers.clear();
+    this.isTypingForChat.clear();
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////

@@ -15,6 +15,6 @@ export class ChatInputComponent {
   chatId = input.required<string>();
 
   onTyping() {
-    this._chatHubService.startTyping(this.chatId());
+    this._chatHubService.notifyTyping(this.chatId());
   }
 }
