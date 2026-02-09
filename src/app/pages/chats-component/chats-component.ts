@@ -1,9 +1,9 @@
 import { Component, DestroyRef, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { ChatsSidebarComponent } from './chats-sidebar-component/chats-sidebar-component';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { NavigationService } from '../../core/services/navigation-service';
 import { isPlatformBrowser } from '@angular/common';
-import { debounceTime, fromEvent } from 'rxjs';
+import { debounceTime, fromEvent, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -14,8 +14,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class ChatsComponent implements OnInit {
   private readonly _navigationService = inject(NavigationService);
+  private readonly MOBILE_BREAKPOINT = 768;
+  private readonly _router = inject(Router);
   private readonly _platformId = inject(PLATFORM_ID);
-  private readonly _mobileBreakpoint = 768;
   private readonly _destroyRef = inject(DestroyRef);
 
   isMobile = signal(false);
@@ -27,23 +28,27 @@ export class ChatsComponent implements OnInit {
     this._updateMobileState();
 
     fromEvent(window, 'resize')
-      .pipe(debounceTime(150), takeUntilDestroyed(this._destroyRef))
-      .subscribe(() => this._updateMobileState());
+      .pipe(
+        debounceTime(150),
+        tap(() => this._updateMobileState()),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe();
   }
 
   private _updateMobileState(): void {
-    const wasMobile = this.isMobile();
-    const isMobile = window.innerWidth < this._mobileBreakpoint;
+    const previouslyMobileState = this.isMobile();
+    const currentlyMobileState = window.innerWidth < this.MOBILE_BREAKPOINT;
+    this.isMobile.set(currentlyMobileState);
 
-    this.isMobile.set(isMobile);
+    const isOnSpecificChat = /\/chats\/.+/.test(this._router.url);
 
-    // When switching from desktop to mobile, show sidebar by default
-    if (!wasMobile && isMobile) {
-      this._navigationService.showSidebarView();
+    if (currentlyMobileState && !previouslyMobileState) {
+      if (isOnSpecificChat) {
+        this._navigationService.showMainContentView();
+      }
     }
-
-    // When switching from mobile to desktop, ensure sidebar is visible
-    if (wasMobile && !isMobile) {
+    if (previouslyMobileState && !currentlyMobileState) {
       this._navigationService.showSidebarView();
     }
   }

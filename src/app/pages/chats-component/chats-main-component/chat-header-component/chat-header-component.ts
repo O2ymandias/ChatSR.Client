@@ -105,7 +105,6 @@ export class ChatHeaderComponent implements OnInit {
       .pipe(
         tap((res) => {
           if (res.isSuccess && res.data) this.chatMembers.set(res.data);
-          console.log(this.chatMembers());
         }),
         takeUntilDestroyed(this._destroyRef),
       )

@@ -51,7 +51,7 @@ export class ChatsListComponent implements OnInit {
       .pipe(
         filter((event) => event instanceof NavigationEnd),
         tap((event: NavigationEnd) => {
-          if (event.url.includes('/chats/') && event.url !== '/chats') {
+          if (event.url.match(/\/chats\/.+/)) {
             this._navigationService.showMainContentView();
           }
         }),
