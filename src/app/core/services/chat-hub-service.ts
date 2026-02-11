@@ -20,6 +20,9 @@ export class ChatHubService {
   private _typingUsers = signal<TypingUser[]>([]);
   typingUsers = this._typingUsers.asReadonly();
 
+  ///////////////////////////////////////////////////////////////////////////////////////
+  // Connection
+  ///////////////////////////////////////////////////////////////////////////////////////
   async startConnection(accessToken: string): Promise<void> {
     this._hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(environment.chatHubUrl, {
@@ -41,7 +44,8 @@ export class ChatHubService {
     if (!this._hubConnection) return;
 
     await this._hubConnection.stop();
-    this._stopHeartbeat();
+    this._cleanupHeartbeat();
+    this._cleanupTypingTimeouts();
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -59,13 +63,11 @@ export class ChatHubService {
   notifyTyping(chatId: string): void {
     if (!this._hubConnection) return;
 
-    // Invoke the Hub method ONLY if there is no existing typing user.
     const existingTyping = this.isTypingForChat.get(chatId);
     if (!existingTyping) {
       this._startTyping(chatId);
     }
 
-    // Reset inactivity timeout on every keystroke
     this._resetTypingTimeout(chatId);
   }
 
@@ -159,9 +161,9 @@ export class ChatHubService {
 
     this._hubConnection.onreconnected(() => this._startHeartbeat());
 
-    this._hubConnection.onreconnecting(() => this._stopHeartbeat());
+    this._hubConnection.onreconnecting(() => this._cleanupHeartbeat());
 
-    this._hubConnection.onclose(() => this._stopHeartbeat());
+    this._hubConnection.onclose(() => this._cleanupHeartbeat());
   }
   private async _heartbeat(): Promise<void> {
     if (this._hubConnection?.state === signalR.HubConnectionState.Connected) {
@@ -169,17 +171,12 @@ export class ChatHubService {
     }
   }
   private _startHeartbeat(): void {
-    this._stopHeartbeat();
+    this._cleanupHeartbeat();
     this.heartbeatTimer = window.setInterval(() => this._heartbeat(), this.HEART_BEAT_INTERVAL);
   }
-  private _stopHeartbeat(): void {
+  private _cleanupHeartbeat(): void {
     if (!this.heartbeatTimer) return;
     window.clearInterval(this.heartbeatTimer);
     this.heartbeatTimer = null;
-  }
-
-  ngOnDestroy() {
-    this.stopConnection();
-    this._cleanupTypingTimeouts();
   }
 }
