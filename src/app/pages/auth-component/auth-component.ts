@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '../../../../node_modules/@angular/router/types/_router_module-chunk';
+import { Component, inject, computed } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { ThemeService } from '../../core/services/theme-service';
 
 @Component({
   selector: 'app-auth-component',
@@ -7,4 +8,14 @@ import { RouterOutlet } from '../../../../node_modules/@angular/router/types/_ro
   templateUrl: './auth-component.html',
   styleUrl: './auth-component.css',
 })
-export class AuthComponent {}
+export class AuthComponent {
+  private readonly _themeService = inject(ThemeService);
+
+  toggleTheme(): void {
+    this._themeService.toggleTheme();
+  }
+
+  isDarkMode = computed(() => this._themeService.currentTheme() === 'dark');
+
+  currentYear = new Date().getFullYear();
+}

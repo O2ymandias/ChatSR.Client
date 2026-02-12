@@ -13,6 +13,7 @@ import { PasswordModule } from 'primeng/password';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, finalize, tap, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-register-component',
@@ -22,8 +23,9 @@ import { HttpErrorResponse } from '@angular/common/http';
     ButtonModule,
     ToastModule,
     InputTextModule,
-    RouterLink,
+    CheckboxModule,
     PasswordModule,
+    RouterLink,
   ],
   templateUrl: './register-component.html',
   styleUrl: './register-component.css',

@@ -4,48 +4,54 @@
 @let passwordCtr = registerForm.controls.password;
 @let confirmPasswordCtr = registerForm.controls.confirmPassword;
 
-<div class="bg-surface-50 dark:bg-surface-950 px-6 py-20 md:px-20 lg:px-80">
-  <div
-    class="bg-surface-0 dark:bg-surface-900 p-8 md:p-12 shadow-sm rounded-2xl w-full max-w-xl mx-auto flex flex-col gap-8"
-  >
-    <!-- Header -->
-    <div class="flex flex-col items-center gap-4">
-      <div class="flex flex-col items-center gap-2">
-        <img class="w-24" src="/logo.png" alt="ChatSR logo" />
-        <h1 class="text-3xl font-bold text-surface-900 dark:text-surface-0 tracking-wide">
-          ChatSR
-        </h1>
+<div
+  class="bg-surface-0 dark:bg-surface-900 border-surface-200 dark:border-surface-800 flex w-full flex-col gap-6 rounded-2xl border p-8 shadow-xl md:p-10"
+>
+  <!-- Header -->
+  <div class="flex flex-col items-center gap-4">
+    <!-- Logo - Only show on mobile, hidden on desktop since it's on the left panel -->
+    <div class="flex items-center gap-3 lg:hidden">
+      <div
+        class="bg-primary-500/10 flex h-12 w-12 items-center justify-center rounded-xl shadow-lg backdrop-blur-sm"
+      >
+        <img src="/logo.png" class="h-7 w-7" alt="ChatSR logo" />
       </div>
-
-      <div class="flex flex-col items-center gap-2 w-full">
-        <div
-          class="text-surface-900 dark:text-surface-0 text-2xl font-semibold leading-tight text-center w-full"
-        >
-          Create Account
-        </div>
-
-        <div class="text-center w-full">
-          <span class="text-surface-700 dark:text-surface-200 leading-normal">
-            Already have an account?
-          </span>
-          <a
-            routerLink="/auth/login"
-            class="text-primary font-medium ml-1 cursor-pointer hover:text-primary-emphasis"
-          >
-            Login now!
-          </a>
-        </div>
-      </div>
+      <h1 class="text-primary-600 dark:text-primary-400 text-2xl font-bold tracking-wide">
+        ChatSR
+      </h1>
     </div>
 
-    <!-- Register Form -->
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-6 w-full">
-      <!-- Username -->
-      <div class="flex flex-col gap-2 w-full">
-        <label
-          for="userName"
-          class="text-surface-900 dark:text-surface-0 font-medium leading-normal"
+    <div class="flex w-full flex-col items-center gap-2">
+      <h2
+        class="text-surface-900 dark:text-surface-0 w-full text-center text-3xl leading-tight font-bold"
+      >
+        Create Account
+      </h2>
+
+      <p class="text-surface-600 dark:text-surface-400 text-center text-sm">
+        Join ChatSR and start connecting with your team
+      </p>
+
+      <div class="mt-2 w-full text-center">
+        <span class="text-surface-700 dark:text-surface-300 text-sm">
+          Already have an account?
+        </span>
+        <a
+          routerLink="/auth/login"
+          class="text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 ml-1 cursor-pointer font-semibold transition-colors"
         >
+          Login now
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Register Form -->
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="flex w-full flex-col gap-5">
+    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+      <!-- Username -->
+      <div class="flex w-full flex-col gap-2">
+        <label for="userName" class="text-surface-900 dark:text-surface-0 text-sm font-semibold">
           Username
         </label>
 
@@ -54,100 +60,101 @@
           pInputText
           id="userName"
           type="text"
-          placeholder="Username"
-          class="w-full px-3 py-2 shadow-sm rounded-lg"
-          autocomplete="name"
+          placeholder="Enter your username"
+          class="border-surface-300 dark:border-surface-700 focus:ring-primary-500 w-full rounded-lg px-4 py-3 shadow-sm transition-all focus:ring-2"
+          autocomplete="username"
           [autofocus]="false"
         />
 
         @if (userNameCtr.errors && (userNameCtr.dirty || userNameCtr.touched)) {
           @if (userNameCtr.hasError('required')) {
-            <p-message severity="error" size="small" variant="simple">
-              Username is required.
-            </p-message>
+            <small class="flex items-center gap-2 text-xs text-red-500">
+              <i class="pi pi-exclamation-circle"></i>
+              Username is required
+            </small>
           }
-
           @if (userNameCtr.hasError('minlength')) {
-            <p-message severity="error" size="small" variant="simple">
-              Username must be at least 3 characters.
-            </p-message>
+            <small class="flex items-center gap-2 text-xs text-red-500">
+              <i class="pi pi-exclamation-circle"></i>
+              Must be at least 3 characters
+            </small>
           }
-
           @if (userNameCtr.hasError('maxlength')) {
-            <p-message severity="error" size="small" variant="simple">
-              Username can't exceed 100 characters.
-            </p-message>
+            <small class="flex items-center gap-2 text-xs text-red-500">
+              <i class="pi pi-exclamation-circle"></i>
+              Can't exceed 100 characters
+            </small>
           }
         }
       </div>
 
       <!-- Email -->
-      <div class="flex flex-col gap-2 w-full">
-        <label for="email" class="text-surface-900 dark:text-surface-0 font-medium leading-normal">
+      <div class="flex w-full flex-col gap-2">
+        <label for="email" class="text-surface-900 dark:text-surface-0 text-sm font-semibold">
           Email
         </label>
         <input
           formControlName="email"
           pInputText
           id="email"
-          type="text"
-          placeholder="Email"
-          class="w-full px-3 py-2 shadow-sm rounded-lg"
+          type="email"
+          placeholder="Enter your email"
+          class="border-surface-300 dark:border-surface-700 focus:ring-primary-500 w-full rounded-lg px-4 py-3 shadow-sm transition-all focus:ring-2"
           autocomplete="email"
           [autofocus]="false"
         />
         @if (emailCtr.errors && (emailCtr.dirty || emailCtr.touched)) {
           @if (emailCtr.hasError('required')) {
-            <p-message severity="error" size="small" variant="simple">
-              Email is required.
-            </p-message>
+            <small class="flex items-center gap-2 text-xs text-red-500">
+              <i class="pi pi-exclamation-circle"></i>
+              Email is required
+            </small>
           }
-
           @if (emailCtr.hasError('email')) {
-            <p-message severity="error" size="small" variant="simple">
-              Email is invalid.
-            </p-message>
+            <small class="flex items-center gap-2 text-xs text-red-500">
+              <i class="pi pi-exclamation-circle"></i>
+              Please enter a valid email
+            </small>
           }
         }
       </div>
+    </div>
 
-      <!-- Phone -->
-      <div class="flex flex-col gap-2 w-full">
-        <label for="phone" class="text-surface-900 dark:text-surface-0 font-medium leading-normal">
-          Phone
-        </label>
-        <input
-          formControlName="phone"
-          pInputText
-          id="phone"
-          type="text"
-          placeholder="Phone"
-          class="w-full px-3 py-2 shadow-sm rounded-lg"
-          autocomplete="tel"
-          [autofocus]="false"
-        />
-        @if (phoneCtr.errors && (phoneCtr.dirty || phoneCtr.touched)) {
-          @if (phoneCtr.hasError('required')) {
-            <p-message severity="error" size="small" variant="simple">
-              phone is required.
-            </p-message>
-          }
-
-          @if (phoneCtr.hasError('pattern')) {
-            <p-message severity="error" size="small" variant="simple">
-              Invalid Egyptian mobile number. It must start with 010, 011, 012, or 015 and contain
-              11 digits.
-            </p-message>
-          }
+    <!-- Phone -->
+    <div class="flex w-full flex-col gap-2">
+      <label for="phone" class="text-surface-900 dark:text-surface-0 text-sm font-semibold">
+        Phone Number
+      </label>
+      <input
+        formControlName="phone"
+        pInputText
+        id="phone"
+        type="tel"
+        placeholder="01X XXXX XXXX"
+        class="border-surface-300 dark:border-surface-700 focus:ring-primary-500 w-full rounded-lg px-4 py-3 shadow-sm transition-all focus:ring-2"
+        autocomplete="tel"
+        [autofocus]="false"
+      />
+      @if (phoneCtr.errors && (phoneCtr.dirty || phoneCtr.touched)) {
+        @if (phoneCtr.hasError('required')) {
+          <small class="flex items-center gap-2 text-xs text-red-500">
+            <i class="pi pi-exclamation-circle"></i>
+            Phone number is required
+          </small>
         }
-      </div>
+        @if (phoneCtr.hasError('pattern')) {
+          <small class="flex items-center gap-2 text-xs text-red-500">
+            <i class="pi pi-exclamation-circle"></i>
+            Must be a valid Egyptian number (010, 011, 012, or 015)
+          </small>
+        }
+      }
+    </div>
 
+    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
       <!-- Password -->
-      <div class="flex flex-col gap-2 w-full">
-        <label
-          for="password"
-          class="text-surface-900 dark:text-surface-0 font-medium leading-normal"
-        >
+      <div class="flex w-full flex-col gap-2">
+        <label for="password" class="text-surface-900 dark:text-surface-0 text-sm font-semibold">
           Password
         </label>
 
@@ -156,33 +163,37 @@
           [toggleMask]="true"
           [feedback]="false"
           inputId="password"
-          placeholder="Password"
-          inputStyleClass="w-full shadow-sm rounded-lg"
-          autocomplete="current-password"
+          placeholder="Create a password"
+          styleClass="w-full"
+          inputStyleClass="w-full shadow-sm rounded-lg border-surface-300 dark:border-surface-700 px-4 py-3"
+          autocomplete="new-password"
           [autofocus]="false"
         />
 
         @if (passwordCtr.errors && (passwordCtr.dirty || passwordCtr.touched)) {
           @if (passwordCtr.hasError('required')) {
-            <p-message severity="error" size="small" variant="simple">
-              Password is required.
-            </p-message>
+            <small class="flex items-center gap-2 text-xs text-red-500">
+              <i class="pi pi-exclamation-circle"></i>
+              Password is required
+            </small>
           }
-
           @if (passwordCtr.hasError('pattern')) {
-            <p-message severity="error" size="small" variant="simple">
-              Password must be at least 6 characters long and include at least one uppercase letter,
-              one lowercase letter, one number, and one special character (@, $, !, %, *, ?, &).
-            </p-message>
+            <small class="flex items-start gap-2 text-xs leading-relaxed text-red-500">
+              <i class="pi pi-exclamation-circle mt-0.5"></i>
+              <span>
+                Password must have 6+ characters with uppercase, lowercase, number, and special
+                character (@$!%*?&)
+              </span>
+            </small>
           }
         }
       </div>
 
       <!-- Confirm Password -->
-      <div class="flex flex-col gap-2 w-full">
+      <div class="flex w-full flex-col gap-2">
         <label
           for="confirmPassword"
-          class="text-surface-900 dark:text-surface-0 font-medium leading-normal"
+          class="text-surface-900 dark:text-surface-0 text-sm font-semibold"
         >
           Confirm Password
         </label>
@@ -192,9 +203,10 @@
           [toggleMask]="true"
           [feedback]="false"
           inputId="confirmPassword"
-          placeholder="Confirm Password"
-          inputStyleClass="w-full shadow-sm rounded-lg"
-          autocomplete="current-password"
+          placeholder="Confirm your password"
+          styleClass="w-full"
+          inputStyleClass="w-full shadow-sm rounded-lg border-surface-300 dark:border-surface-700 px-4 py-3"
+          autocomplete="new-password"
           [autofocus]="false"
         />
 
@@ -202,28 +214,54 @@
           (confirmPasswordCtr.dirty || confirmPasswordCtr.touched) &&
           confirmPasswordCtr.hasError('required')
         ) {
-          <p-message severity="error" size="small" variant="simple">
-            Confirm Password is required.
-          </p-message>
+          <small class="flex items-center gap-2 text-xs text-red-500">
+            <i class="pi pi-exclamation-circle"></i>
+            Please confirm your password
+          </small>
         }
 
         @if (confirmPasswordCtr.dirty && registerForm.hasError('mismatch')) {
-          <p-message severity="error" size="small" variant="simple">
-            Password and Confirm Password do not match.
-          </p-message>
+          <small class="flex items-center gap-2 text-xs text-red-500">
+            <i class="pi pi-exclamation-circle"></i>
+            Passwords do not match
+          </small>
         }
       </div>
+    </div>
 
-      <button
-        pButton
-        [loading]="loading()"
-        class="w-full py-2 rounded-lg flex justify-center items-center gap-2"
-      >
-        <i pButtonIcon class="pi pi-user text-base! leading-normal!"></i>
-        <span pButtonLabel>Sign Up</span>
-      </button>
-    </form>
-  </div>
+    <!-- Terms and Conditions -->
+    <div class="flex items-start gap-2">
+      <p-checkbox inputId="terms" [binary]="true" styleClass="mt-0.5" />
+      <label for="terms" class="text-surface-700 dark:text-surface-300 cursor-pointer text-sm">
+        I agree to the
+        <a
+          href="#"
+          class="text-primary-600 hover:text-primary-700 dark:text-primary-400 font-medium"
+        >
+          Terms and Conditions
+        </a>
+        and
+        <a
+          href="#"
+          class="text-primary-600 hover:text-primary-700 dark:text-primary-400 font-medium"
+        >
+          Privacy Policy
+        </a>
+      </label>
+    </div>
+
+    <!-- Sign Up Button -->
+    <button
+      pButton
+      type="submit"
+      [loading]="loading()"
+      [disabled]="registerForm.invalid"
+      class="bg-primary-600 hover:bg-primary-700 mt-2 flex w-full items-center justify-center gap-2 rounded-lg py-3 font-semibold text-white shadow-md transition-all hover:shadow-lg disabled:opacity-50"
+    >
+      <i class="pi pi-user-plus text-base"></i>
+      <span>Create Account</span>
+    </button>
+  </form>
 </div>
 
 <p-toast position="bottom-right" key="br" />

@@ -5,6 +5,7 @@ import { ChatsComponent } from './pages/chats-component/chats-component';
 import { authGuard } from './core/guards/auth-guard';
 import { ChatsMainComponent } from './pages/chats-component/chats-main-component/chats-main-component';
 import { EmptyChatStateComponent } from './pages/chats-component/empty-chat-state-component/empty-chat-state-component';
+import { AuthComponent } from './pages/auth-component/auth-component';
 
 export const routes: Routes = [
   {
@@ -32,6 +33,7 @@ export const routes: Routes = [
 
   {
     path: 'auth',
+    component: AuthComponent,
     children: [
       {
         path: '',

@@ -12,6 +12,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Error } from '../../../shared/models/shared.model';
 import { Router, RouterLink } from '@angular/router';
 import { PasswordModule } from 'primeng/password';
+import { CheckboxModule } from 'primeng/checkbox';
+
 @Component({
   selector: 'app-login-component',
   imports: [
@@ -22,6 +24,7 @@ import { PasswordModule } from 'primeng/password';
     ToastModule,
     RouterLink,
     PasswordModule,
+    CheckboxModule,
   ],
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',

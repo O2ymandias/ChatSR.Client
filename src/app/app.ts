@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { ChatHubService } from './core/services/chat-hub-service';
+import { ThemeService } from './core/services/theme-service';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,7 @@ import { ChatHubService } from './core/services/chat-hub-service';
 })
 export class App implements OnDestroy {
   private readonly _chatHubService = inject(ChatHubService);
+  private readonly _themeService = inject(ThemeService);
   protected readonly title = signal('ChatSR');
 
   ngOnDestroy(): void {
