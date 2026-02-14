@@ -17,7 +17,6 @@ import { MessageService } from '../../../../core/services/message-service';
 import { tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MessageStoreService } from '../../../../core/services/message-store-service';
-import { ChatHubService } from '../../../../core/services/chat-hub-service';
 
 @Component({
   selector: 'app-chat-messages-component',
@@ -29,7 +28,6 @@ export class ChatMessagesComponent {
   private readonly _authService = inject(AuthService);
   private readonly _messageService = inject(MessageService);
   private readonly _messageStoreService = inject(MessageStoreService);
-  private readonly _chatHubService = inject(ChatHubService);
   private readonly _platformId = inject(PLATFORM_ID);
   private readonly _destroyRef = inject(DestroyRef);
 
@@ -77,7 +75,6 @@ export class ChatMessagesComponent {
       .pipe(
         tap((res) => {
           this._messageStoreService.setMessagesForChat(chatId, res.items);
-          // this._chatHubService.stopTyping(chatId);
         }),
         takeUntilDestroyed(this._destroyRef),
       )

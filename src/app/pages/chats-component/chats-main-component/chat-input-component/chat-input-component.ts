@@ -1,8 +1,7 @@
-import { Component, DestroyRef, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { ChatHubService } from '../../../../core/services/chat-hub-service';
 import { TextareaModule } from 'primeng/textarea';
-import { MessageService } from '../../../../core/services/message-service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -13,8 +12,6 @@ import { FormsModule } from '@angular/forms';
 })
 export class ChatInputComponent {
   private readonly _chatHubService = inject(ChatHubService);
-  private readonly _destroyRef = inject(DestroyRef);
-  private readonly _messageService = inject(MessageService);
 
   chatId = input.required<string>();
   messageContent = signal('');
@@ -33,6 +30,7 @@ export class ChatInputComponent {
     if (content.length === 0 || content.length > 2000) return;
     this._chatHubService.sendMessage(this.chatId(), { content }).then(() => {
       this.messageContent.set('');
+      this._chatHubService.stopTyping(this.chatId());
     });
   }
 }
