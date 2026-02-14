@@ -1,12 +1,17 @@
 import { TypingUser } from './../../shared/models/chat-hub.model';
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { environment } from '../../environment';
+import { MessageResponse, SendMessageRequest } from '../../shared/models/message.model';
+import { MessageStoreService } from './message-store-service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChatHubService {
+  private readonly _messageStoreService = inject(MessageStoreService);
+
+  // Connection
   private _hubConnection: signalR.HubConnection | null = null;
 
   // Heartbeat
@@ -55,6 +60,7 @@ export class ChatHubService {
     this._startHeartbeatRelatedEvents();
     this._onUserTyping();
     this._onUserStoppedTyping();
+    this._onReceiveMessage();
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -178,5 +184,27 @@ export class ChatHubService {
     if (!this.heartbeatTimer) return;
     window.clearInterval(this.heartbeatTimer);
     this.heartbeatTimer = null;
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////
+  // Messages
+  ///////////////////////////////////////////////////////////////////////////////////////
+  async sendMessage(chatId: string, request: SendMessageRequest): Promise<void> {
+    if (!this._hubConnection) return;
+
+    try {
+      await this._hubConnection.invoke('SendMessage', chatId, request);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      throw error;
+    }
+  }
+
+  private _onReceiveMessage(): void {
+    if (!this._hubConnection) return;
+
+    this._hubConnection.on('ReceiveMessage', (message: MessageResponse) => {
+      this._messageStoreService.addMessage(message);
+    });
   }
 }

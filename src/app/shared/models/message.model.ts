@@ -9,3 +9,7 @@ export type MessageResponse = {
   senderDisplayName: string;
   senderPictureUrl: string | null;
 };
+
+export type SendMessageRequest = {
+  content: string;
+};

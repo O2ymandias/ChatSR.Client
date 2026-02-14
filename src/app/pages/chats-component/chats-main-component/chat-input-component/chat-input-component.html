@@ -1,11 +1,11 @@
 <div class="border-t-2 border-neutral-200 px-8 py-4 dark:border-neutral-800">
   <div class="flex items-center justify-between gap-4">
     <textarea
-      #messageBox
+      pTextarea
+      autoResize
       rows="1"
       placeholder="Type a message"
-      class="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-300/50 hover:scrollbar-thumb-slate-400/70 dark:scrollbar-thumb-slate-700 dark:hover:scrollbar-thumb-slate-600 w-full resize-none overflow-y-hidden rounded-lg border border-neutral-300 px-4 py-2 leading-6 focus:border-cyan-600 focus:outline-none dark:border-neutral-700 dark:focus:border-cyan-700"
-      (input)="autoGrow($event)"
+      class="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-300/50 hover:scrollbar-thumb-slate-400/70 dark:scrollbar-thumb-slate-700 dark:hover:scrollbar-thumb-slate-600 max-h-40 w-full rounded-lg border border-neutral-300 px-4 py-2 leading-6 focus:border-cyan-600 focus:outline-none dark:border-neutral-700 dark:focus:border-cyan-700"
       (keydown)="onTyping()"
       [(ngModel)]="messageContent"
     ></textarea>

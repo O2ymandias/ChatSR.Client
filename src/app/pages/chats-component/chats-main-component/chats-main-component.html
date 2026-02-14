@@ -1,18 +1,12 @@
 <div class="h-screen overflow-hidden p-4">
-  <div
-    class="flex h-full flex-col justify-between rounded-2xl ring ring-neutral-200 dark:ring-neutral-800"
-  >
-    <!-- Chat Header -->
+  <div class="flex h-full flex-col rounded-2xl ring ring-neutral-200 dark:ring-neutral-800">
+    <!-- Header -->
     <app-chat-header-component [chatId]="chatId()" />
 
-    <!-- Chat Messages -->
-    <div
-      class="bg-surface-50 dark:bg-surface-950 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-300/50 hover:scrollbar-thumb-slate-400/70 dark:scrollbar-thumb-slate-700 dark:hover:scrollbar-thumb-slate-600 flex-1 overflow-y-auto"
-    >
-      <app-chat-messages-component [chatId]="chatId()" />
-    </div>
+    <!-- Messages -->
+    <app-chat-messages-component [chatId]="chatId()" class="flex-1 overflow-hidden" />
 
-    <!-- Chat Input -->
+    <!-- Input -->
     <app-chat-input-component [chatId]="chatId()" />
   </div>
 </div>
