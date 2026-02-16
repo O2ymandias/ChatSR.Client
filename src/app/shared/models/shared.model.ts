@@ -1,4 +1,4 @@
-type ApiResponseBase = {
+export type ApiResponseBase = {
   isSuccess: boolean;
   error: Error | null;
   timestamp: Date;

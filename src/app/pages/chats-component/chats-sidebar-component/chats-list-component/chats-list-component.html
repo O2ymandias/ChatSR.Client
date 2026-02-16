@@ -1,47 +1,73 @@
 <ul>
   @for (chat of userChats(); track chat.chatId) {
-    <li pRipple>
+    <li class="relative overflow-hidden transition-colors duration-200">
       <a
         [routerLink]="['/chats', chat.chatId]"
         [routerLinkActive]="['active-chat']"
-        class="flex cursor-pointer items-center gap-4 p-4 hover:bg-gray-200/50 dark:hover:bg-gray-800/50"
+        class="flex cursor-pointer items-center gap-3 p-4 transition-all duration-200 hover:bg-linear-to-r hover:from-gray-50 hover:to-transparent dark:hover:from-gray-800/50 dark:hover:to-transparent"
+        pRipple
       >
-        <!-- Avatar -->
-        @if (chat.displayPictureUrl) {
-          <img
-            [src]="`${serverUrl}/${chat.displayPictureUrl}`"
-            class="size-10 shrink-0 rounded-full object-cover"
-          />
-        } @else {
-          <div
-            class="flex size-10 shrink-0 items-center justify-center rounded-full"
-            [class]="
-              chat.isGroup
-                ? 'bg-linear-to-br from-teal-400 via-teal-500 to-teal-600'
-                : 'bg-linear-to-br from-sky-400 via-sky-500 to-sky-600'
-            "
-          >
-            <span class="font-semibold text-white uppercase">
-              {{ chat.name.charAt(0) }}
-            </span>
-          </div>
-        }
+        <!-- Avatar with status indicator -->
+        <div class="relative shrink-0">
+          @if (chat.displayPictureUrl) {
+            <img
+              [src]="`${serverUrl}/${chat.displayPictureUrl}`"
+              class="size-12 rounded-full object-cover ring-2 ring-gray-100 dark:ring-gray-800"
+              [alt]="chat.name"
+            />
+          } @else {
+            <div
+              class="flex size-12 items-center justify-center rounded-full shadow-sm"
+              [class]="
+                chat.isGroup
+                  ? 'bg-linear-to-br from-teal-400 via-teal-500 to-teal-600'
+                  : 'bg-linear-to-br from-sky-400 via-sky-500 to-sky-600'
+              "
+            >
+              <span class="text-lg font-semibold text-white uppercase">
+                {{ chat.name.charAt(0) }}
+              </span>
+            </div>
+          }
+        </div>
 
         <!-- Content -->
-        <div class="min-w-0 grow">
-          <div class="flex items-center justify-between gap-2">
-            <span class="truncate font-medium text-gray-900 dark:text-gray-100">
+        <div class="min-w-0 flex-1">
+          <div class="mb-1 flex items-center justify-between gap-3">
+            <h3
+              class="truncate text-gray-900 dark:text-gray-100"
+              [class]="chat.unreadCount > 0 ? 'font-bold' : 'font-medium'"
+            >
               {{ chat.name }}
-            </span>
+            </h3>
 
-            <span class="shrink-0 text-sm text-gray-500 dark:text-gray-400">
-              {{ chat.lastMessage?.sentAt | chatDate }}
-            </span>
+            <div class="flex shrink-0 items-center gap-2">
+              <time class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                {{ chat.lastMessage?.sentAt | chatDate }}
+              </time>
+            </div>
           </div>
 
-          <span class="block truncate text-sm text-gray-500 dark:text-gray-400">
-            {{ chat.lastMessage?.content }}
-          </span>
+          <div class="flex items-center justify-between gap-3">
+            <p
+              class="truncate text-sm text-gray-600 dark:text-gray-400"
+              [class]="{
+                'font-medium': chat.unreadCount > 0,
+                'text-gray-900': chat.unreadCount > 0,
+                'dark:text-gray-200': chat.unreadCount > 0,
+              }"
+            >
+              {{ chat.lastMessage?.content }}
+            </p>
+
+            @if (chat.unreadCount > 0) {
+              <p-badge
+                [value]="chat.unreadCount"
+                severity="secondary"
+                class="size-6 shrink-0 rounded-full"
+              />
+            }
+          </div>
         </div>
       </a>
     </li>

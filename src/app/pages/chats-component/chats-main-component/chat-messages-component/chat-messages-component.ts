@@ -6,6 +6,7 @@ import {
   ElementRef,
   inject,
   input,
+  output,
   PLATFORM_ID,
   viewChild,
 } from '@angular/core';
@@ -17,10 +18,11 @@ import { MessageService } from '../../../../core/services/message-service';
 import { tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MessageStoreService } from '../../../../core/services/message-store-service';
-
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 @Component({
   selector: 'app-chat-messages-component',
-  imports: [ScrollPanelModule, DatePipe],
+  imports: [ScrollPanelModule, DatePipe, ButtonModule, TooltipModule],
   templateUrl: './chat-messages-component.html',
   styleUrl: './chat-messages-component.css',
 })
@@ -40,10 +42,10 @@ export class ChatMessagesComponent {
     });
 
     effect(() => {
-      const messagesCount = this.messages().length;
+      const messagesCount = this.messages()().length;
 
       if (messagesCount > 0) {
-        this._scrollToBottom();
+        this.scrollToBottom();
       }
     });
   }
@@ -51,9 +53,6 @@ export class ChatMessagesComponent {
   chatId = input.required<string>();
 
   messages = computed(() => {
-    // This signal will be recalculated whenever:
-    // 1. chatId signal changes
-    // 2. The internal _messagesByChat signal changes
     const chatId = this.chatId();
     return this._messageStoreService.getMessagesForChat(chatId);
   });
@@ -67,6 +66,33 @@ export class ChatMessagesComponent {
 
   messagesContainer = viewChild.required<ElementRef<HTMLDivElement>>('messagesContainer');
 
+  scroll = output<boolean>();
+
+  scrollToBottom(): void {
+    if (!isPlatformBrowser(this._platformId)) return;
+
+    // Use setTimeout to ensure DOM is updated
+    setTimeout(() => {
+      if (this.messagesContainer) {
+        const container = this.messagesContainer().nativeElement;
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: 'smooth',
+        });
+      }
+    }, 100);
+  }
+
+  onScroll(): void {
+    const element = this.messagesContainer().nativeElement;
+    const threshold = 100;
+
+    const isScrolledUp =
+      element.scrollHeight - element.scrollTop - element.clientHeight > threshold;
+
+    this.scroll.emit(isScrolledUp);
+  }
+
   private _initializeMessages(chatId: string, pagination: PaginationParams): void {
     if (!isPlatformBrowser(this._platformId)) return;
 
@@ -79,18 +105,5 @@ export class ChatMessagesComponent {
         takeUntilDestroyed(this._destroyRef),
       )
       .subscribe();
-  }
-
-  private _scrollToBottom(): void {
-    if (!isPlatformBrowser(this._platformId)) return;
-
-    // Use setTimeout to ensure DOM is updated
-    setTimeout(() => {
-      if (this.messagesContainer) {
-        const container = this.messagesContainer().nativeElement;
-        container.scrollTop = container.scrollHeight;
-        console.log(container.scrollTop, container.scrollHeight);
-      }
-    }, 100);
   }
 }

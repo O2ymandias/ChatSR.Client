@@ -16,6 +16,7 @@ export type ChatListResponse = {
   memberCount: number;
   lastMessage: MessageResponse | null;
   displayPictureUrl: string | null;
+  unreadCount: number;
 };
 
 export type ChatMemberResponse = {

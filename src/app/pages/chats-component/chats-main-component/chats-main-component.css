@@ -1,0 +1,15 @@
+.scroll-btn {
+  opacity: 0;
+  transform: translateY(16px) scale(0.75);
+  pointer-events: none;
+
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease;
+}
+
+.scroll-btn.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}

@@ -9,15 +9,18 @@ import { ChatDatePipe } from '../../../../shared/pipes/chat-date-pipe';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { environment } from '../../../../environment';
 import { NavigationService } from '../../../../core/services/navigation-service';
+import { MessageStoreService } from '../../../../core/services/message-store-service';
+import { BadgeModule } from 'primeng/badge';
 
 @Component({
   selector: 'app-chats-list-component',
-  imports: [ScrollPanelModule, ChatDatePipe, RouterLink, RouterLinkActive],
+  imports: [ScrollPanelModule, ChatDatePipe, RouterLink, RouterLinkActive, BadgeModule],
   templateUrl: './chats-list-component.html',
   styleUrl: './chats-list-component.css',
 })
 export class ChatsListComponent implements OnInit {
   private readonly _chatService = inject(ChatsService);
+  private readonly _messageStoreService = inject(MessageStoreService);
   private readonly _platformId = inject(PLATFORM_ID);
   private readonly _navigationService = inject(NavigationService);
   private readonly _destroyRef = inject(DestroyRef);
@@ -28,11 +31,15 @@ export class ChatsListComponent implements OnInit {
   userChats = signal<ChatListResponse[]>([]);
 
   ngOnInit(): void {
-    this._initializeUserChats();
+    this._loadUserChats();
     this._listenToRouteChanges();
   }
 
-  private _initializeUserChats(): void {
+  getUnreadCount(chatId: string) {
+    return this._messageStoreService.getUnreadCountForChat(chatId);
+  }
+
+  private _loadUserChats(): void {
     if (!isPlatformBrowser(this._platformId)) return;
 
     this._chatService

@@ -52,9 +52,8 @@ export class MessageStoreService {
   }
 
   // Get messages for a specific chat
-  getMessagesForChat(chatId: string): MessageResponse[] {
-    const map = this._messagesByChat();
-    return map.get(chatId) ?? [];
+  getMessagesForChat(chatId: string) {
+    return computed(() => this._messagesByChat().get(chatId) ?? []);
   }
 
   // Get the last message for a chat
@@ -70,9 +69,8 @@ export class MessageStoreService {
   }
 
   // Get unread count for a specific chat
-  getUnreadCountForChat(chatId: string): number {
-    const counts = this._unreadCounts();
-    return counts.get(chatId) ?? 0;
+  getUnreadCountForChat(chatId: string) {
+    return computed(() => this._unreadCounts().get(chatId) ?? 0);
   }
 
   // Get total unread count
