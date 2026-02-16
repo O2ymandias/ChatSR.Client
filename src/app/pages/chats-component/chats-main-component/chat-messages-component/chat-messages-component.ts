@@ -33,6 +33,8 @@ export class ChatMessagesComponent {
   private readonly _platformId = inject(PLATFORM_ID);
   private readonly _destroyRef = inject(DestroyRef);
 
+  private _isAutoScrolling = false;
+
   constructor() {
     effect(() => {
       const chatId = this.chatId();
@@ -71,7 +73,8 @@ export class ChatMessagesComponent {
   scrollToBottom(): void {
     if (!isPlatformBrowser(this._platformId)) return;
 
-    // Use setTimeout to ensure DOM is updated
+    this._isAutoScrolling = true;
+
     setTimeout(() => {
       if (this.messagesContainer) {
         const container = this.messagesContainer().nativeElement;
@@ -79,17 +82,22 @@ export class ChatMessagesComponent {
           top: container.scrollHeight,
           behavior: 'smooth',
         });
+
+        // Reset flag after scroll animation completes
+        setTimeout(() => {
+          this._isAutoScrolling = false;
+        }, 500);
       }
     }, 100);
   }
 
   onScroll(): void {
-    const element = this.messagesContainer().nativeElement;
-    const threshold = 100;
+    if (this._isAutoScrolling) return; // Ignore scroll event during auto-scroll
 
+    const element = this.messagesContainer().nativeElement;
+    const threshold = 500;
     const isScrolledUp =
       element.scrollHeight - element.scrollTop - element.clientHeight > threshold;
-
     this.scroll.emit(isScrolledUp);
   }
 
