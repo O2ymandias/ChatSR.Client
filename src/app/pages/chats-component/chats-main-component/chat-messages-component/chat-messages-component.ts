@@ -47,7 +47,7 @@ export class ChatMessagesComponent {
 
     // Effect 2: scroll when messages arrive
     effect(() => {
-      const messagesCount = this.messages()().length;
+      const messagesCount = this.messages().length;
       if (messagesCount > 0) {
         const smooth = !this._isInitialLoad;
         this._isInitialLoad = false;
@@ -58,9 +58,11 @@ export class ChatMessagesComponent {
 
   chatId = input.required<string>();
 
+  messagesByChatMap = this._messageStoreService.messagesByChat;
+
   messages = computed(() => {
     const chatId = this.chatId();
-    return this._messageStoreService.getMessagesForChat(chatId);
+    return this.messagesByChatMap().get(chatId) ?? [];
   });
 
   currentUserId = computed(

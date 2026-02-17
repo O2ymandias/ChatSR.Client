@@ -4,7 +4,7 @@
   (scroll)="onScroll()"
   class="bg-surface-50 dark:bg-surface-950 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-300/50 hover:scrollbar-thumb-slate-400/70 dark:scrollbar-thumb-slate-700/50 dark:hover:scrollbar-thumb-slate-600 relative h-full overflow-y-auto"
 >
-  @for (message of messages()(); track message.messageId) {
+  @for (message of messages(); track message.messageId) {
     <div class="px-4 py-3 sm:px-6 lg:px-8">
       <!-- Date Separator -->
       <div class="flex justify-center py-6">

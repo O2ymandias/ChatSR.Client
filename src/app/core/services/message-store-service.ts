@@ -9,6 +9,15 @@ export class MessageStoreService {
   private _unreadCounts = signal<Map<string, number>>(new Map());
   private _activeChatId = signal<string | null>(null);
 
+  messagesByChat = this._messagesByChat.asReadonly();
+  unreadCounts = this._unreadCounts.asReadonly();
+  activeChatId = this._activeChatId.asReadonly();
+
+  totalUnreadCount = computed(() => {
+    const counts = this._unreadCounts();
+    return Array.from(counts.values()).reduce((acc, curr) => acc + curr, 0);
+  });
+
   // Set messages for a specific chat (Messages come from api call)
   setMessagesForChat(chatId: string, messages: MessageResponse[]): void {
     this._messagesByChat.update((map) => {
@@ -60,40 +69,11 @@ export class MessageStoreService {
     }
   }
 
-  // Get messages for a specific chat
-  getMessagesForChat(chatId: string) {
-    return computed(() => this._messagesByChat().get(chatId) ?? []);
-  }
-
-  // Get the last message for a chat
-  getLastMessage(chatId: string): MessageResponse | null {
-    const messages = this._messagesByChat().get(chatId);
-    return messages?.[messages.length - 1] ?? null;
-  }
-
-  // Get Chat Ids only with messages
-  getAllChatsWithMessages(): string[] {
-    const map = this._messagesByChat();
-    return Array.from(map.keys());
-  }
-
-  // Get unread count for a specific chat
-  getUnreadCountForChat(chatId: string) {
-    return computed(() => this._unreadCounts().get(chatId) ?? 0);
-  }
-
-  // Get total unread count
-  getTotalUnreadCount() {
-    return computed(() => {
-      const counts = this._unreadCounts();
-      return Array.from(counts.values()).reduce((acc, curr) => acc + curr, 0);
-    });
-  }
-
-  // Set active chat & clear its unread count
+  // Set active chat
   setActiveChat(chatId: string): void {
     this._activeChatId.set(chatId);
 
+    // Clear unread count
     this._unreadCounts.update((counts) => {
       const newCounts = new Map(counts);
       newCounts.set(chatId, 0);
@@ -104,35 +84,5 @@ export class MessageStoreService {
   // clear active chat
   clearActiveChat(): void {
     this._activeChatId.set(null);
-  }
-
-  // Clear all messages for chat
-  clearMessagesForChat(chatId: string): void {
-    this._messagesByChat.update((map) => {
-      const newMap = new Map(map);
-      newMap.delete(chatId);
-      return newMap;
-    });
-  }
-
-  // Clear all messages
-  clearAll(): void {
-    this._messagesByChat.set(new Map());
-    this._unreadCounts.set(new Map());
-    this._activeChatId.set(null);
-  }
-
-  // Remove a specific message
-  removeMessage(chatId: string, messageId: string): void {
-    this._messagesByChat.update((map) => {
-      const newMap = new Map(map);
-      const messages = newMap.get(chatId);
-
-      if (!messages) return map;
-
-      const filteredMessages = messages.filter((msg) => msg.messageId !== messageId);
-      newMap.set(chatId, filteredMessages);
-      return newMap;
-    });
   }
 }

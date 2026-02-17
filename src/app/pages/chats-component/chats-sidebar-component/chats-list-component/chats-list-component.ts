@@ -30,13 +30,11 @@ export class ChatsListComponent implements OnInit {
 
   userChats = signal<ChatListResponse[]>([]);
 
+  unreadCountsMap = this._messageStoreService.unreadCounts;
+
   ngOnInit(): void {
     this._loadUserChatsAndSetUnreadCount();
     this._listenToRouteChanges();
-  }
-
-  getUnreadCount(chatId: string) {
-    return this._messageStoreService.getUnreadCountForChat(chatId);
   }
 
   private _loadUserChatsAndSetUnreadCount(): void {
