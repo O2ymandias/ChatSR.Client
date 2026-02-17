@@ -1,9 +1,10 @@
 import {
   Component,
   DestroyRef,
+  effect,
   inject,
   input,
-  OnInit,
+  OnDestroy,
   PLATFORM_ID,
   signal,
   viewChild,
@@ -23,21 +24,26 @@ import { ButtonModule } from 'primeng/button';
   templateUrl: './chats-main-component.html',
   styleUrl: './chats-main-component.css',
 })
-export class ChatsMainComponent implements OnInit {
+export class ChatsMainComponent implements OnDestroy {
   private readonly _chatsService = inject(ChatsService);
   private readonly _messageStoreService = inject(MessageStoreService);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _platformId = inject(PLATFORM_ID);
 
+  constructor() {
+    effect(() => {
+      this._markChatAsRead();
+      this._messageStoreService.setActiveChat(this.chatId());
+    });
+  }
+  ngOnDestroy(): void {
+    this._messageStoreService.clearActiveChat();
+  }
+
   chatId = input.required<string>();
   chatMessagesComponent = viewChild.required<ChatMessagesComponent>('chatMessagesComponent');
 
   showScrollButton = signal(false);
-
-  ngOnInit(): void {
-    this._messageStoreService.setActiveChat(this.chatId());
-    this._markChatAsRead();
-  }
 
   scrollToBottom(): void {
     this.chatMessagesComponent().scrollToBottom(true);
@@ -45,7 +51,6 @@ export class ChatsMainComponent implements OnInit {
 
   private _markChatAsRead(): void {
     if (!isPlatformBrowser(this._platformId)) return;
-
     this._chatsService
       .markChatAsRead$(this.chatId())
       .pipe(takeUntilDestroyed(this._destroyRef))

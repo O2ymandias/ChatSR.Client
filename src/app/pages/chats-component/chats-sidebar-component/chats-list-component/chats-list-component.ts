@@ -31,7 +31,7 @@ export class ChatsListComponent implements OnInit {
   userChats = signal<ChatListResponse[]>([]);
 
   ngOnInit(): void {
-    this._loadUserChats();
+    this._loadUserChatsAndSetUnreadCount();
     this._listenToRouteChanges();
   }
 
@@ -39,14 +39,22 @@ export class ChatsListComponent implements OnInit {
     return this._messageStoreService.getUnreadCountForChat(chatId);
   }
 
-  private _loadUserChats(): void {
+  private _loadUserChatsAndSetUnreadCount(): void {
     if (!isPlatformBrowser(this._platformId)) return;
 
     this._chatService
       .getUserChats$()
       .pipe(
         tap((res) => {
-          if (res.data) this.userChats.set(res.data);
+          if (res.data) {
+            // Set user chats
+            this.userChats.set(res.data);
+
+            // Set unread count
+            res.data.forEach((c) => {
+              this._messageStoreService.setUnreadCountForChat(c.chatId, c.unreadCount);
+            });
+          }
         }),
         takeUntilDestroyed(this._destroyRef),
       )

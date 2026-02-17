@@ -21,6 +21,15 @@ export class MessageStoreService {
     });
   }
 
+  // Set unread count for a specific chat
+  setUnreadCountForChat(chatId: string, count: number): void {
+    this._unreadCounts.update((map) => {
+      const newMap = new Map(map);
+      newMap.set(chatId, count);
+      return newMap;
+    });
+  }
+
   // Add a new message
   addMessage(message: MessageResponse): void {
     this._messagesByChat.update((map) => {
@@ -40,7 +49,7 @@ export class MessageStoreService {
       return newMap;
     });
 
-    // Update unread count if not the active chat
+    // Update unread count if not the active.
     if (this._activeChatId() !== message.chatId) {
       this._unreadCounts.update((counts) => {
         const newCounts = new Map(counts);
@@ -92,6 +101,11 @@ export class MessageStoreService {
     });
   }
 
+  // clear active chat
+  clearActiveChat(): void {
+    this._activeChatId.set(null);
+  }
+
   // Clear all messages for chat
   clearMessagesForChat(chatId: string): void {
     this._messagesByChat.update((map) => {
@@ -105,6 +119,7 @@ export class MessageStoreService {
   clearAll(): void {
     this._messagesByChat.set(new Map());
     this._unreadCounts.set(new Map());
+    this._activeChatId.set(null);
   }
 
   // Remove a specific message

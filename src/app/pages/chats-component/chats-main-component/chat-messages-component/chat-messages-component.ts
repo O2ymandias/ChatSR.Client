@@ -33,8 +33,8 @@ export class ChatMessagesComponent {
   private readonly _messageStoreService = inject(MessageStoreService);
   private readonly _platformId = inject(PLATFORM_ID);
   private readonly _destroyRef = inject(DestroyRef);
-
   private readonly _injector = inject(Injector);
+  private _isInitialLoad = true;
 
   constructor() {
     // Effect 1: re-fetch when chatId changes, reset the initial load flag
@@ -55,8 +55,6 @@ export class ChatMessagesComponent {
       }
     });
   }
-
-  private _isInitialLoad = true;
 
   chatId = input.required<string>();
 
