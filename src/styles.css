@@ -3,8 +3,6 @@
 @import 'primeicons/primeicons.css';
 @custom-variant dark (&:where(.dark, .dark *));
 
-@import './styles/animation.css';
-
 /* Tailwind scrollbar */
 @plugin 'tailwind-scrollbar';
 

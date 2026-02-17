@@ -40,7 +40,7 @@ export class ChatsMainComponent implements OnInit {
   }
 
   scrollToBottom(): void {
-    this.chatMessagesComponent().scrollToBottom();
+    this.chatMessagesComponent().scrollToBottom(true);
   }
 
   private _markChatAsRead(): void {

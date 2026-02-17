@@ -1,10 +1,12 @@
 import {
+  afterNextRender,
   Component,
   computed,
   DestroyRef,
   effect,
   ElementRef,
   inject,
+  Injector,
   input,
   output,
   PLATFORM_ID,
@@ -19,10 +21,9 @@ import { tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MessageStoreService } from '../../../../core/services/message-store-service';
 import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
 @Component({
   selector: 'app-chat-messages-component',
-  imports: [ScrollPanelModule, DatePipe, ButtonModule, TooltipModule],
+  imports: [ScrollPanelModule, DatePipe, ButtonModule],
   templateUrl: './chat-messages-component.html',
   styleUrl: './chat-messages-component.css',
 })
@@ -33,24 +34,29 @@ export class ChatMessagesComponent {
   private readonly _platformId = inject(PLATFORM_ID);
   private readonly _destroyRef = inject(DestroyRef);
 
-  private _isAutoScrolling = false;
+  private readonly _injector = inject(Injector);
 
   constructor() {
+    // Effect 1: re-fetch when chatId changes, reset the initial load flag
     effect(() => {
       const chatId = this.chatId();
-      const pagination = { page: 1, pageSize: 10 };
-
+      this._isInitialLoad = true;
+      const pagination = { page: 1, pageSize: 25 };
       this._initializeMessages(chatId, pagination);
     });
 
+    // Effect 2: scroll when messages arrive
     effect(() => {
       const messagesCount = this.messages()().length;
-
       if (messagesCount > 0) {
-        this.scrollToBottom();
+        const smooth = !this._isInitialLoad;
+        this._isInitialLoad = false;
+        this.scrollToBottom(smooth);
       }
     });
   }
+
+  private _isInitialLoad = true;
 
   chatId = input.required<string>();
 
@@ -70,34 +76,28 @@ export class ChatMessagesComponent {
 
   scroll = output<boolean>();
 
-  scrollToBottom(): void {
+  scrollToBottom(smooth = false): void {
     if (!isPlatformBrowser(this._platformId)) return;
 
-    this._isAutoScrolling = true;
-
-    setTimeout(() => {
-      if (this.messagesContainer) {
+    afterNextRender(
+      () => {
         const container = this.messagesContainer().nativeElement;
         container.scrollTo({
           top: container.scrollHeight,
-          behavior: 'smooth',
+          behavior: smooth ? 'smooth' : 'instant',
         });
-
-        // Reset flag after scroll animation completes
-        setTimeout(() => {
-          this._isAutoScrolling = false;
-        }, 500);
-      }
-    }, 100);
+      },
+      { injector: this._injector },
+    );
   }
 
   onScroll(): void {
-    if (this._isAutoScrolling) return; // Ignore scroll event during auto-scroll
-
     const element = this.messagesContainer().nativeElement;
-    const threshold = 500;
+    const threshold = 1000;
+
     const isScrolledUp =
       element.scrollHeight - element.scrollTop - element.clientHeight > threshold;
+
     this.scroll.emit(isScrolledUp);
   }
 
