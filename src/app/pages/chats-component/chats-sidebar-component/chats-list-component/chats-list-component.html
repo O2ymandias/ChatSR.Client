@@ -5,7 +5,6 @@
         [routerLink]="['/chats', chat.chatId]"
         [routerLinkActive]="['active-chat']"
         class="flex cursor-pointer items-center gap-3 p-4 transition-all duration-200 hover:bg-linear-to-r hover:from-gray-50 hover:to-transparent dark:hover:from-gray-800/50 dark:hover:to-transparent"
-        pRipple
       >
         <!-- Avatar with status indicator -->
         <div class="relative shrink-0">
@@ -36,7 +35,7 @@
         <div class="min-w-0 flex-1">
           <div class="mb-1 flex items-center justify-between gap-3">
             <h3
-              class="truncate text-gray-900 dark:text-gray-100"
+              class="truncate text-gray-900 capitalize dark:text-gray-100"
               [class]="unreadCount > 0 ? 'font-bold' : 'font-medium'"
             >
               {{ chat.name }}
@@ -44,7 +43,7 @@
 
             <div class="flex shrink-0 items-center gap-2">
               <time class="text-xs font-medium text-gray-500 dark:text-gray-400">
-                {{ chat.lastMessage?.sentAt | chatDate }}
+                {{ getLastMessage(chat.chatId)?.sentAt | chatDate }}
               </time>
             </div>
           </div>
@@ -53,19 +52,20 @@
             <p
               class="truncate text-sm text-gray-600 dark:text-gray-400"
               [class]="{
-                'font-medium': unreadCount > 0,
+                'font-semibold': unreadCount > 0,
                 'text-gray-900': unreadCount > 0,
                 'dark:text-gray-200': unreadCount > 0,
               }"
             >
-              {{ chat.lastMessage?.content }}
+              {{ getLastMessage(chat.chatId)?.content }}
             </p>
 
             @if (unreadCount > 0) {
               <p-badge
-                [value]="unreadCount"
+                [value]="unreadCount > 99 ? '99+' : unreadCount"
                 severity="secondary"
-                class="size-6 shrink-0 rounded-full"
+                badgeSize="large"
+                class="rounded"
               />
             }
           </div>

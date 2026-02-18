@@ -7,10 +7,12 @@ import { MessageResponse } from '../../shared/models/message.model';
 export class MessageStoreService {
   private _messagesByChat = signal<Map<string, MessageResponse[]>>(new Map());
   private _unreadCounts = signal<Map<string, number>>(new Map());
+  private _lastMessagePerChat = signal<Map<string, MessageResponse>>(new Map());
   private _activeChatId = signal<string | null>(null);
 
   messagesByChat = this._messagesByChat.asReadonly();
   unreadCounts = this._unreadCounts.asReadonly();
+  lastMessagePerChat = this._lastMessagePerChat.asReadonly();
   activeChatId = this._activeChatId.asReadonly();
 
   totalUnreadCount = computed(() => {
@@ -58,7 +60,10 @@ export class MessageStoreService {
       return newMap;
     });
 
-    // Update unread count if not the active.
+    // Set last message for a specific chat
+    this.setLastMessageForChat(message.chatId, message);
+
+    // Update unread count if not the active chat.
     if (this._activeChatId() !== message.chatId) {
       this._unreadCounts.update((counts) => {
         const newCounts = new Map(counts);
@@ -67,6 +72,15 @@ export class MessageStoreService {
         return newCounts;
       });
     }
+  }
+
+  // Set last message for a specific chat
+  setLastMessageForChat(chatId: string, message: MessageResponse): void {
+    this._lastMessagePerChat.update((map) => {
+      const newMap = new Map(map);
+      newMap.set(chatId, message);
+      return newMap;
+    });
   }
 
   // Set active chat

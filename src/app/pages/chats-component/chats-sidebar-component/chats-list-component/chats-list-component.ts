@@ -1,5 +1,4 @@
 import { Component, DestroyRef, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
-import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { ChatsService } from '../../../../core/services/chats-service';
 import { ChatListResponse } from '../../../../shared/models/chats.model';
 import { isPlatformBrowser } from '@angular/common';
@@ -14,7 +13,7 @@ import { BadgeModule } from 'primeng/badge';
 
 @Component({
   selector: 'app-chats-list-component',
-  imports: [ScrollPanelModule, ChatDatePipe, RouterLink, RouterLinkActive, BadgeModule],
+  imports: [ChatDatePipe, RouterLink, RouterLinkActive, BadgeModule],
   templateUrl: './chats-list-component.html',
   styleUrl: './chats-list-component.css',
 })
@@ -31,6 +30,12 @@ export class ChatsListComponent implements OnInit {
   userChats = signal<ChatListResponse[]>([]);
 
   unreadCountsMap = this._messageStoreService.unreadCounts;
+  messagesMap = this._messageStoreService.messagesByChat;
+  lastMessageMap = this._messageStoreService.lastMessagePerChat;
+
+  getLastMessage(chatId: string) {
+    return this.lastMessageMap().get(chatId) ?? null;
+  }
 
   ngOnInit(): void {
     this._loadUserChatsAndSetUnreadCount();
@@ -48,9 +53,13 @@ export class ChatsListComponent implements OnInit {
             // Set user chats
             this.userChats.set(res.data);
 
-            // Set unread count
             res.data.forEach((c) => {
+              // Set unread count
               this._messageStoreService.setUnreadCountForChat(c.chatId, c.unreadCount);
+
+              // Set last message
+              if (c.lastMessage)
+                this._messageStoreService.setLastMessageForChat(c.chatId, c.lastMessage);
             });
           }
         }),
