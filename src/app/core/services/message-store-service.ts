@@ -24,10 +24,24 @@ export class MessageStoreService {
   setMessagesForChat(chatId: string, messages: MessageResponse[]): void {
     this._messagesByChat.update((map) => {
       const newMap = new Map(map);
+
       const sortedMessages = messages.sort(
         (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime(),
       );
-      newMap.set(chatId, sortedMessages);
+      newMap.set(chatId, [...sortedMessages]);
+      return newMap;
+    });
+  }
+
+  // Prepend messages for a specific chat (Messages come from pagination api call)
+  prependMessagesForChat(chatId: string, messages: MessageResponse[]): void {
+    this._messagesByChat.update((map) => {
+      const newMap = new Map(map);
+      const existing = newMap.get(chatId) ?? [];
+      const sortedMessages = messages.sort(
+        (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime(),
+      );
+      newMap.set(chatId, [...sortedMessages, ...existing]);
       return newMap;
     });
   }

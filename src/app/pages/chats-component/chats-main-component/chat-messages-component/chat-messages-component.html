@@ -1,121 +1,129 @@
 <!-- Messages Container -->
-<div
-  #messagesContainer
-  (scroll)="onScroll()"
-  class="bg-surface-50 dark:bg-surface-950 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-300/50 hover:scrollbar-thumb-slate-400/70 dark:scrollbar-thumb-slate-700/50 dark:hover:scrollbar-thumb-slate-600 relative h-full overflow-y-auto"
->
-  @for (message of messages(); track message.messageId) {
-    <div class="px-4 py-3 sm:px-6 lg:px-8">
-      <!-- Date Separator -->
-      <div class="flex justify-center py-6">
-        <div class="relative">
-          <div class="absolute inset-0 flex items-center" aria-hidden="true">
-            <div class="w-full border-t border-slate-200 dark:border-slate-800"></div>
-          </div>
-          <div class="relative flex justify-center">
-            <span
-              class="rounded-full bg-slate-50 px-4 py-1.5 text-xs font-medium text-slate-600 shadow-sm ring-1 ring-slate-200/60 backdrop-blur-sm dark:bg-slate-900/80 dark:text-slate-300 dark:ring-slate-700/60"
-            >
-              Today
-            </span>
+<div class="relative h-full">
+  <div
+    #messagesContainer
+    infiniteScroll
+    [scrollWindow]="false"
+    [infiniteScrollUpDistance]="1.5"
+    [infiniteScrollThrottle]="100"
+    [alwaysCallback]="true"
+    (scrolledUp)="onScrolledUp()"
+    class="bg-surface-50 dark:bg-surface-950 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-300/50 hover:scrollbar-thumb-slate-400/70 dark:scrollbar-thumb-slate-700/50 dark:hover:scrollbar-thumb-slate-600 relative h-full overflow-y-auto"
+  >
+    <!-- (scroll)="onScroll()" -->
+    @for (message of messages(); track message.messageId) {
+      <div class="px-4 py-3 sm:px-6 lg:px-8">
+        <!-- Date Separator -->
+        <div class="flex justify-center py-6">
+          <div class="relative">
+            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+              <div class="w-full border-t border-slate-200 dark:border-slate-800"></div>
+            </div>
+            <div class="relative flex justify-center">
+              <span
+                class="rounded-full bg-slate-50 px-4 py-1.5 text-xs font-medium text-slate-600 shadow-sm ring-1 ring-slate-200/60 backdrop-blur-sm dark:bg-slate-900/80 dark:text-slate-300 dark:ring-slate-700/60"
+              >
+                Today
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
-      @if (message.senderId === currentUserId()) {
-        <!-- My Message (Right-aligned) -->
-        <div class="flex justify-end gap-2">
-          <div class="group flex max-w-[85%] flex-col items-end sm:max-w-[75%] lg:max-w-[65%]">
-            <div
-              class="relative rounded-2xl rounded-tr-md bg-linear-to-br from-cyan-600 to-cyan-700 px-4 py-2.5 shadow-md transition-all hover:shadow-lg dark:from-cyan-700 dark:to-cyan-800"
-            >
-              <!-- Message Content -->
-              <p class="text-sm leading-relaxed break-all whitespace-pre-wrap text-white">
-                {{ message.content }}
-              </p>
+        @if (message.senderId === currentUserId()) {
+          <!-- My Message (Right-aligned) -->
+          <div class="flex justify-end gap-2">
+            <div class="group flex max-w-[85%] flex-col items-end sm:max-w-[75%] lg:max-w-[65%]">
+              <div
+                class="relative rounded-2xl rounded-tr-md bg-linear-to-br from-cyan-600 to-cyan-700 px-4 py-2.5 shadow-md transition-all hover:shadow-lg dark:from-cyan-700 dark:to-cyan-800"
+              >
+                <!-- Message Content -->
+                <p class="text-sm leading-relaxed break-all whitespace-pre-wrap text-white">
+                  {{ message.content }}
+                </p>
 
-              <!-- Timestamp -->
-              <div class="mt-1.5 flex items-center justify-end gap-1.5">
+                <!-- Timestamp -->
+                <div class="mt-1.5 flex items-center justify-end gap-1.5">
+                  <span
+                    class="text-[11px] font-medium text-cyan-100/90 select-none dark:text-cyan-200/80"
+                  >
+                    {{ message.sentAt | date: 'shortTime' }}
+                  </span>
+
+                  <!-- Read Status -->
+                  <svg
+                    class="h-3.5 w-3.5 text-cyan-100/90"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2.5"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Hover Actions -->
+              <div class="mt-1 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <button
+                  class="rounded-md p-1 text-slate-400 hover:bg-slate-200/50 hover:text-slate-600 dark:hover:bg-slate-800/50 dark:hover:text-slate-300"
+                >
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <!-- Other's Message (Left-aligned) -->
+          <div class="flex justify-start gap-2">
+            <div class="group flex max-w-[85%] flex-col items-start sm:max-w-[75%] lg:max-w-[65%]">
+              <div
+                class="relative rounded-2xl rounded-tl-md bg-white px-4 py-2.5 shadow-md ring-1 ring-slate-200/60 transition-all hover:shadow-lg dark:bg-slate-800 dark:ring-slate-700/60"
+              >
+                <!-- Message Content -->
+                <p
+                  class="text-sm leading-relaxed break-all whitespace-pre-wrap text-slate-800 dark:text-slate-100"
+                >
+                  {{ message.content }}
+                </p>
+
+                <!-- Timestamp -->
                 <span
-                  class="text-[11px] font-medium text-cyan-100/90 select-none dark:text-cyan-200/80"
+                  class="mt-1.5 block text-[11px] font-medium text-slate-500 select-none dark:text-slate-400"
                 >
                   {{ message.sentAt | date: 'shortTime' }}
                 </span>
+              </div>
 
-                <!-- Read Status -->
-                <svg
-                  class="h-3.5 w-3.5 text-cyan-100/90"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+              <!-- Hover Actions -->
+              <div class="mt-1 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <button
+                  class="rounded-md p-1 text-slate-400 hover:bg-slate-200/50 hover:text-slate-600 dark:hover:bg-slate-800/50 dark:hover:text-slate-300"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2.5"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
+                    />
+                  </svg>
+                </button>
               </div>
             </div>
-
-            <!-- Hover Actions -->
-            <div class="mt-1 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-              <button
-                class="rounded-md p-1 text-slate-400 hover:bg-slate-200/50 hover:text-slate-600 dark:hover:bg-slate-800/50 dark:hover:text-slate-300"
-              >
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
-                  />
-                </svg>
-              </button>
-            </div>
           </div>
-        </div>
-      } @else {
-        <!-- Other's Message (Left-aligned) -->
-        <div class="flex justify-start gap-2">
-          <div class="group flex max-w-[85%] flex-col items-start sm:max-w-[75%] lg:max-w-[65%]">
-            <div
-              class="relative rounded-2xl rounded-tl-md bg-white px-4 py-2.5 shadow-md ring-1 ring-slate-200/60 transition-all hover:shadow-lg dark:bg-slate-800 dark:ring-slate-700/60"
-            >
-              <!-- Message Content -->
-              <p
-                class="text-sm leading-relaxed break-all whitespace-pre-wrap text-slate-800 dark:text-slate-100"
-              >
-                {{ message.content }}
-              </p>
-
-              <!-- Timestamp -->
-              <span
-                class="mt-1.5 block text-[11px] font-medium text-slate-500 select-none dark:text-slate-400"
-              >
-                {{ message.sentAt | date: 'shortTime' }}
-              </span>
-            </div>
-
-            <!-- Hover Actions -->
-            <div class="mt-1 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-              <button
-                class="rounded-md p-1 text-slate-400 hover:bg-slate-200/50 hover:text-slate-600 dark:hover:bg-slate-800/50 dark:hover:text-slate-300"
-              >
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      }
-    </div>
-  }
+        }
+      </div>
+    }
+  </div>
 </div>

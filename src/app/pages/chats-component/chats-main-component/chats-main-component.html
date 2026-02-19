@@ -7,9 +7,9 @@
     <app-chat-messages-component
       #chatMessagesComponent
       [chatId]="chatId()"
-      (scroll)="showScrollButton.set($event)"
       class="flex-1 overflow-hidden"
     />
+    <!-- (scroll)="showScrollButton.set($event)" -->
 
     <!-- Input -->
     <app-chat-input-component [chatId]="chatId()" />
@@ -22,6 +22,6 @@
     severity="secondary"
     class="scroll-btn absolute right-8 bottom-28"
     [class.show]="showScrollButton()"
-    (click)="scrollToBottom()"
   />
+  <!-- (click)="scrollToBottom()" -->
 </div>

@@ -45,9 +45,9 @@ export class ChatsMainComponent implements OnDestroy {
 
   showScrollButton = signal(false);
 
-  scrollToBottom(): void {
-    this.chatMessagesComponent().scrollToBottom(true);
-  }
+  // scrollToBottom(): void {
+  //   this.chatMessagesComponent().scrollToBottom(true);
+  // }
 
   private _markChatAsRead(): void {
     if (!isPlatformBrowser(this._platformId)) return;

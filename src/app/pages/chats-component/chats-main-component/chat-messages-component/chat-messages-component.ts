@@ -1,29 +1,28 @@
 import {
-  afterNextRender,
   Component,
   computed,
   DestroyRef,
   effect,
   ElementRef,
   inject,
-  Injector,
   input,
-  output,
   PLATFORM_ID,
+  signal,
   viewChild,
 } from '@angular/core';
-import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { AuthService } from '../../../../core/services/auth-service';
 import { DatePipe, isPlatformBrowser } from '@angular/common';
-import { PaginationParams } from '../../../../shared/models/shared.model';
 import { MessageService } from '../../../../core/services/message-service';
 import { tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MessageStoreService } from '../../../../core/services/message-store-service';
 import { ButtonModule } from 'primeng/button';
+import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
+import { PaginationParams } from '../../../../shared/models/shared.model';
+
 @Component({
   selector: 'app-chat-messages-component',
-  imports: [ScrollPanelModule, DatePipe, ButtonModule],
+  imports: [DatePipe, ButtonModule, InfiniteScrollDirective],
   templateUrl: './chat-messages-component.html',
   styleUrl: './chat-messages-component.css',
 })
@@ -33,28 +32,74 @@ export class ChatMessagesComponent {
   private readonly _messageStoreService = inject(MessageStoreService);
   private readonly _platformId = inject(PLATFORM_ID);
   private readonly _destroyRef = inject(DestroyRef);
-  private readonly _injector = inject(Injector);
-  private _isInitialLoad = true;
+
+  private readonly DEFAULT_PAGE = 1;
+  private readonly DEFAULT_PAGE_SIZE = 20;
+
+  private _previousMessagesLength = 0;
 
   constructor() {
-    // Effect 1: re-fetch when chatId changes, reset the initial load flag
+    // Effect 1: Reset & Load when chat changes
     effect(() => {
       const chatId = this.chatId();
-      this._isInitialLoad = true;
-      const pagination = { page: 1, pageSize: 25 };
-      this._initializeMessages(chatId, pagination);
+
+      this.page.set(this.DEFAULT_PAGE);
+      this.loadedAllHistory.set(false);
+      this._previousMessagesLength = 0;
+
+      this._loadInitialMessages(chatId);
     });
 
-    // Effect 2: scroll when messages arrive
+    // Effect 2: Load more when scrolling up
     effect(() => {
-      const messagesCount = this.messages().length;
-      if (messagesCount > 0) {
-        const smooth = !this._isInitialLoad;
-        this._isInitialLoad = false;
-        this.scrollToBottom(smooth);
+      const page = this.page();
+      const chatId = this.chatId();
+
+      if (page > 1) {
+        this._loadMoreMessages(chatId, {
+          page,
+          pageSize: this.DEFAULT_PAGE_SIZE,
+        });
       }
     });
+
+    // Effect 3: scroll handling
+    effect(() => {
+      const messages = this.messages();
+      const currentLength = messages.length;
+
+      const container = this.messagesContainer()?.nativeElement;
+      if (!container) return;
+
+      // Initial load -> instant scroll
+      if (this._previousMessagesLength === 0 && currentLength > 0) {
+        setTimeout(() => {
+          container.scrollTop = container.scrollHeight;
+        });
+        this._previousMessagesLength = currentLength;
+        return;
+      }
+
+      // New message appended -> smooth scroll
+      if (currentLength > this._previousMessagesLength) {
+        const isNearBottom =
+          container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+
+        if (isNearBottom) {
+          setTimeout(() => {
+            container.scrollTo({
+              top: container.scrollHeight,
+              behavior: 'smooth',
+            });
+          }, 50);
+        }
+      }
+
+      this._previousMessagesLength = currentLength;
+    });
   }
+
+  page = signal(this.DEFAULT_PAGE);
 
   chatId = input.required<string>();
 
@@ -74,41 +119,48 @@ export class ChatMessagesComponent {
 
   messagesContainer = viewChild.required<ElementRef<HTMLDivElement>>('messagesContainer');
 
-  scroll = output<boolean>();
+  loadedAllHistory = signal(false);
 
-  scrollToBottom(smooth = false): void {
-    if (!isPlatformBrowser(this._platformId)) return;
-
-    afterNextRender(
-      () => {
-        const container = this.messagesContainer().nativeElement;
-        container.scrollTo({
-          top: container.scrollHeight,
-          behavior: smooth ? 'smooth' : 'instant',
-        });
-      },
-      { injector: this._injector },
-    );
+  onScrolledUp(): void {
+    this.page.update((old) => old + 1);
   }
 
-  onScroll(): void {
-    const element = this.messagesContainer().nativeElement;
-    const threshold = 1000;
+  private _loadInitialMessages(chatId: string): void {
+    if (!isPlatformBrowser(this._platformId)) return;
 
-    const isScrolledUp =
-      element.scrollHeight - element.scrollTop - element.clientHeight > threshold;
-
-    this.scroll.emit(isScrolledUp);
+    this._messageService
+      .getChatMessages$(chatId, {
+        page: this.DEFAULT_PAGE,
+        pageSize: this.DEFAULT_PAGE_SIZE,
+      })
+      .pipe(
+        tap((res) => {
+          if (!res.isSuccess) return;
+          this._messageStoreService.setMessagesForChat(chatId, res.items);
+        }),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe();
   }
 
-  private _initializeMessages(chatId: string, pagination: PaginationParams): void {
+  private _loadMoreMessages(chatId: string, pagination: PaginationParams): void {
     if (!isPlatformBrowser(this._platformId)) return;
+    if (this.loadedAllHistory()) return;
+
+    const container = this.messagesContainer().nativeElement;
+    const previousHeight = container.scrollHeight;
 
     this._messageService
       .getChatMessages$(chatId, pagination)
       .pipe(
         tap((res) => {
-          this._messageStoreService.setMessagesForChat(chatId, res.items);
+          if (!res.isSuccess) return;
+
+          this._messageStoreService.prependMessagesForChat(chatId, res.items);
+
+          if (!res.pagination.hasNext) {
+            this.loadedAllHistory.set(true);
+          }
         }),
         takeUntilDestroyed(this._destroyRef),
       )
