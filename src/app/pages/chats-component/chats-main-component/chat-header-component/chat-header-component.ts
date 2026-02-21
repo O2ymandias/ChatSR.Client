@@ -23,6 +23,7 @@ import { tap } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageService } from '../../../../core/services/message-service';
 import { MessageStoreService } from '../../../../core/services/message-store-service';
+import { ChatUiStateService } from '../../../../core/services/chat-ui-state-service';
 
 @Component({
   selector: 'app-chat-header-component',
@@ -36,6 +37,7 @@ export class ChatHeaderComponent implements OnInit {
   private readonly _navigationService = inject(NavigationService);
   private readonly _chatService = inject(ChatsService);
   private readonly _chatHubService = inject(ChatHubService);
+  private readonly _chatUiState = inject(ChatUiStateService);
   private readonly _platformId = inject(PLATFORM_ID);
   private readonly _router = inject(Router);
   private readonly _destroyRef = inject(DestroyRef);
@@ -60,8 +62,9 @@ export class ChatHeaderComponent implements OnInit {
     this.typingUsers().filter((u) => u.chatId === this.chatId()),
   );
 
-  searchTerm = this._messageService.searchTerm;
-  searchMessagesVisible = signal(false);
+  // Chat UI State
+  searchTerm = this._chatUiState.searchTerm;
+  searchVisible = this._chatUiState.searchVisible;
 
   defaultPage = this._messageService.DEFAULT_PAGE;
   defaultPageSize = this._messageService.DEFAULT_PAGE_SIZE;
@@ -82,8 +85,11 @@ export class ChatHeaderComponent implements OnInit {
   });
 
   clearSearch() {
-    this.searchTerm.set('');
-    this.loadMessages(true);
+    this._chatUiState.clearSearch();
+  }
+
+  search(): void {
+    this._chatUiState.searchTerm.set(this.searchTerm());
   }
 
   goBack() {
@@ -113,25 +119,6 @@ export class ChatHeaderComponent implements OnInit {
       .pipe(
         tap((res) => {
           if (res.isSuccess && res.data) this.chatMembers.set(res.data);
-        }),
-        takeUntilDestroyed(this._destroyRef),
-      )
-      .subscribe();
-  }
-
-  loadMessages(clearSearch: boolean = false) {
-    this._messageService.resetPagination.update((old) => old + 1);
-
-    this._messageService
-      .getChatMessages$(this.chatId(), {
-        page: this.defaultPage,
-        pageSize: this.defaultPageSize,
-        searchTerm: clearSearch ? null : this.searchTerm(),
-      })
-      .pipe(
-        tap((res) => {
-          if (!res.isSuccess) return;
-          this._messageStoreService.setMessagesForChat(this.chatId(), res.items);
         }),
         takeUntilDestroyed(this._destroyRef),
       )

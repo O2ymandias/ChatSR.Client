@@ -1,5 +1,5 @@
 import { QueryParams } from './../../shared/models/shared.model';
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { PagedApiResponse } from '../../shared/models/shared.model';
 import { environment } from '../../environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
@@ -13,9 +13,6 @@ export class MessageService {
 
   readonly DEFAULT_PAGE = 1;
   readonly DEFAULT_PAGE_SIZE = 20;
-
-  searchTerm = signal('');
-  resetPagination = signal(0);
 
   getChatMessages$(chatId: string, queryParams: QueryParams) {
     const url = `${environment.apiUrl}/message/${chatId}`;

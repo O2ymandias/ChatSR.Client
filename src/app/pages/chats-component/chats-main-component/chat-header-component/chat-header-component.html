@@ -3,12 +3,9 @@
 >
   <!-- Chat Info -->
   <div class="flex items-center gap-2">
-    <!-- Back Button -->
     <p-button icon="pi pi-arrow-left" rounded text severity="secondary" (click)="goBack()" />
 
-    <!-- Info -->
     <div class="flex items-center gap-2">
-      <!-- Avatar -->
       @if (chat()?.displayPictureUrl) {
         <img
           [src]="`${serverUrl}/${chat()?.displayPictureUrl}`"
@@ -24,25 +21,18 @@
           "
         >
           <span class="font-semibold text-white uppercase">
-            {{ chat.name.charAt(0) }}
+            {{ chat()?.name?.charAt(0) }}
           </span>
         </div>
       }
 
-      <!-- Content -->
       <div>
-        <p class="font-bold text-neutral-900 dark:text-neutral-100">
-          {{ chat()?.name }}
-        </p>
+        <p class="font-bold text-neutral-900 dark:text-neutral-100">{{ chat()?.name }}</p>
 
         @if (typingUsersInCurrentChat().length > 0) {
           <p class="typing-indicator text-primary flex items-baseline gap-1 text-sm font-medium">
             <span>{{ typingText() }}</span>
-            <span class="typing-dots">
-              <span></span>
-              <span></span>
-              <span></span>
-            </span>
+            <span class="typing-dots"> <span></span><span></span><span></span> </span>
           </p>
         } @else {
           <p class="text-primary text-sm font-medium">Online</p>
@@ -52,12 +42,10 @@
   </div>
 
   <!-- Search Input -->
-  @let searchVisible = searchMessagesVisible();
-
   <div class="flex justify-center">
     <div
-      [class.opacity-100]="searchVisible"
-      [class.opacity-0]="!searchVisible"
+      [class.opacity-100]="searchVisible()"
+      [class.opacity-0]="!searchVisible()"
       class="relative w-full max-w-96 transition-all duration-150 ease-in-out"
     >
       <input
@@ -66,7 +54,7 @@
         type="text"
         placeholder="Search messages..."
         class="w-full rounded-full pr-10 focus:border-cyan-600 dark:focus:border-cyan-700"
-        (input)="loadMessages()"
+        (input)="search()"
       />
 
       <button
@@ -82,21 +70,15 @@
 
   <!-- Actions -->
   <div class="flex items-center gap-2">
-    @if (searchMessagesVisible()) {
-      <p-button
-        icon="pi pi-times"
-        rounded
-        outlined
-        severity="danger"
-        (click)="searchMessagesVisible.set(false)"
-      />
+    @if (searchVisible()) {
+      <p-button icon="pi pi-times" rounded outlined severity="danger" (click)="clearSearch()" />
     } @else {
       <p-button
         icon="pi pi-search"
         rounded
         text
         severity="secondary"
-        (click)="searchMessagesVisible.set(true)"
+        (click)="searchVisible.set(true)"
       />
     }
 
