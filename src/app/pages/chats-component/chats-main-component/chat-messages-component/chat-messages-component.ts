@@ -18,7 +18,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MessageStoreService } from '../../../../core/services/message-store-service';
 import { ButtonModule } from 'primeng/button';
 import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
-import { PaginationParams } from '../../../../shared/models/shared.model';
+import { QueryParams } from '../../../../shared/models/shared.model';
 
 @Component({
   selector: 'app-chat-messages-component',
@@ -33,9 +33,6 @@ export class ChatMessagesComponent {
   private readonly _platformId = inject(PLATFORM_ID);
   private readonly _destroyRef = inject(DestroyRef);
 
-  private readonly DEFAULT_PAGE = 1;
-  private readonly DEFAULT_PAGE_SIZE = 20;
-
   private _previousMessagesLength = 0;
 
   constructor() {
@@ -43,7 +40,7 @@ export class ChatMessagesComponent {
     effect(() => {
       const chatId = this.chatId();
 
-      this.page.set(this.DEFAULT_PAGE);
+      this.page.set(this.defaultPage);
       this.loadedAllHistory.set(false);
       this._previousMessagesLength = 0;
 
@@ -58,7 +55,8 @@ export class ChatMessagesComponent {
       if (page > 1) {
         this._loadMoreMessages(chatId, {
           page,
-          pageSize: this.DEFAULT_PAGE_SIZE,
+          pageSize: this.defaultPageSize,
+          searchTerm: this.searchTerm(),
         });
       }
     });
@@ -97,9 +95,21 @@ export class ChatMessagesComponent {
 
       this._previousMessagesLength = currentLength;
     });
-  }
 
-  page = signal(this.DEFAULT_PAGE);
+    effect(() => {
+      this.resetPagination();
+      this.page.set(this.defaultPage);
+      this.loadedAllHistory.set(false);
+      this._previousMessagesLength = 0;
+    });
+  }
+  resetPagination = this._messageService.resetPagination;
+
+  defaultPage = this._messageService.DEFAULT_PAGE;
+  defaultPageSize = this._messageService.DEFAULT_PAGE_SIZE;
+  searchTerm = this._messageService.searchTerm;
+
+  page = signal(this.defaultPage);
 
   chatId = input.required<string>();
 
@@ -130,8 +140,9 @@ export class ChatMessagesComponent {
 
     this._messageService
       .getChatMessages$(chatId, {
-        page: this.DEFAULT_PAGE,
-        pageSize: this.DEFAULT_PAGE_SIZE,
+        page: this.defaultPage,
+        pageSize: this.defaultPageSize,
+        searchTerm: null,
       })
       .pipe(
         tap((res) => {
@@ -143,15 +154,12 @@ export class ChatMessagesComponent {
       .subscribe();
   }
 
-  private _loadMoreMessages(chatId: string, pagination: PaginationParams): void {
+  private _loadMoreMessages(chatId: string, queryParams: QueryParams): void {
     if (!isPlatformBrowser(this._platformId)) return;
     if (this.loadedAllHistory()) return;
 
-    const container = this.messagesContainer().nativeElement;
-    const previousHeight = container.scrollHeight;
-
     this._messageService
-      .getChatMessages$(chatId, pagination)
+      .getChatMessages$(chatId, queryParams)
       .pipe(
         tap((res) => {
           if (!res.isSuccess) return;

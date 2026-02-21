@@ -62,16 +62,17 @@
     >
       <input
         pInputText
-        [(ngModel)]="searchQuery"
+        [(ngModel)]="searchTerm"
         type="text"
         placeholder="Search messages..."
         class="w-full rounded-full pr-10 focus:border-cyan-600 dark:focus:border-cyan-700"
+        (input)="loadMessages()"
       />
 
       <button
         type="button"
         class="clear-btn absolute top-1/2 right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 active:bg-gray-200 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-400 dark:active:bg-gray-600"
-        [class.show]="searchQuery()"
+        [class.show]="searchTerm()"
         (click)="clearSearch()"
       >
         <i class="pi pi-times text-sm"></i>

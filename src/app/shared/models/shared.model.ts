@@ -27,9 +27,10 @@ export type PaginationMetadata = {
   hasNext: boolean;
 };
 
-export type PaginationParams = {
+export type QueryParams = {
   page: number;
   pageSize: number;
+  searchTerm: string | null;
 };
 
 export type Theme = 'light' | 'dark';
