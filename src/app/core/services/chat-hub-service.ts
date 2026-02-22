@@ -25,6 +25,10 @@ export class ChatHubService {
   private _typingUsers = signal<TypingUser[]>([]);
   typingUsers = this._typingUsers.asReadonly();
 
+  // Status
+  private _onlineUsers = signal<string[]>([]);
+  onlineUsers = this._onlineUsers.asReadonly();
+
   ///////////////////////////////////////////////////////////////////////////////////////
   // Connection
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -58,9 +62,15 @@ export class ChatHubService {
   ///////////////////////////////////////////////////////////////////////////////////////
   private _setupEventHandlers(): void {
     this._startHeartbeatRelatedEvents();
+
     this._onUserTyping();
     this._onUserStoppedTyping();
+
     this._onReceiveMessage();
+
+    this._onUserOnline();
+    this._onUserOffline();
+    this._onOnlineUsers();
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -205,6 +215,46 @@ export class ChatHubService {
 
     this._hubConnection.on('ReceiveMessage', (message: MessageResponse) => {
       this._messageStoreService.addMessage(message);
+    });
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////
+  // User Status
+  ///////////////////////////////////////////////////////////////////////////////////////
+
+  private _onUserOnline(): void {
+    if (!this._hubConnection) return;
+
+    this._hubConnection.on('UserOnline', (userId: string) => {
+      this._onlineUsers.update((users) => {
+        if (users.includes(userId)) {
+          return users;
+        }
+        return [...users, userId];
+      });
+    });
+  }
+
+  private _onUserOffline(): void {
+    if (!this._hubConnection) return;
+
+    this._hubConnection.on('UserOffline', (userId: string, lastActiveAt: string) => {
+      this._onlineUsers.update((users) => users.filter((u) => u !== userId));
+    });
+  }
+
+  private _onOnlineUsers(): void {
+    if (!this._hubConnection) return;
+
+    this._hubConnection.on('OnlineUsers', (userIds: string[]) => {
+      this._onlineUsers.update((current) => {
+        const merged = [...current];
+        for (const id of userIds) {
+          if (!merged.includes(id)) merged.push(id);
+        }
+        return merged;
+      });
+      console.log(this._onlineUsers());
     });
   }
 }

@@ -22,8 +22,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { tap } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageService } from '../../../../core/services/message-service';
-import { MessageStoreService } from '../../../../core/services/message-store-service';
 import { ChatUiStateService } from '../../../../core/services/chat-ui-state-service';
+import { AuthService } from '../../../../core/services/auth-service';
 
 @Component({
   selector: 'app-chat-header-component',
@@ -33,7 +33,7 @@ import { ChatUiStateService } from '../../../../core/services/chat-ui-state-serv
 })
 export class ChatHeaderComponent implements OnInit {
   private readonly _messageService = inject(MessageService);
-  private readonly _messageStoreService = inject(MessageStoreService);
+  private readonly _authService = inject(AuthService);
   private readonly _navigationService = inject(NavigationService);
   private readonly _chatService = inject(ChatsService);
   private readonly _chatHubService = inject(ChatHubService);
@@ -57,18 +57,12 @@ export class ChatHeaderComponent implements OnInit {
   chatMembers = signal<ChatMemberResponse[]>([]);
 
   serverUrl = environment.serverUrl;
+
+  // Typing
   typingUsers = this._chatHubService.typingUsers;
   typingUsersInCurrentChat = computed(() =>
     this.typingUsers().filter((u) => u.chatId === this.chatId()),
   );
-
-  // Chat UI State
-  searchTerm = this._chatUiState.searchTerm;
-  searchVisible = this._chatUiState.searchVisible;
-
-  defaultPage = this._messageService.DEFAULT_PAGE;
-  defaultPageSize = this._messageService.DEFAULT_PAGE_SIZE;
-
   typingText = computed(() => {
     const count = this.typingUsersInCurrentChat().length;
     const typingUsers = this.chatMembers().filter((u) =>
@@ -82,6 +76,56 @@ export class ChatHeaderComponent implements OnInit {
     if (count === 2)
       return `${typingUsers[0].displayName} and ${typingUsers[1].displayName} are typing`;
     return `${count} people typing`;
+  });
+
+  // Search
+  searchTerm = this._chatUiState.searchTerm;
+  searchVisible = this._chatUiState.searchVisible;
+
+  defaultPage = this._messageService.DEFAULT_PAGE;
+  defaultPageSize = this._messageService.DEFAULT_PAGE_SIZE;
+
+  // Current User
+  currentUserId = computed(
+    () =>
+      this._authService.userInfo()?.[
+        'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'
+      ] ?? null,
+  );
+
+  // User Status
+  onlineUsers = this._chatHubService.onlineUsers;
+
+  onlineUsersInCurrentChat = computed(() => {
+    return this.chatMembers()
+      .filter((member) => this.onlineUsers().includes(member.userId))
+      .map((m) => m.userId);
+  });
+
+  otherChatMember = computed(() => {
+    const chatMembers = this.chatMembers();
+    if (this.chat()?.isGroup) return null;
+    return chatMembers.find((member) => member.userId !== this.currentUserId()) ?? null;
+  });
+
+  isOtherUserOnline = computed(() => {
+    const other = this.otherChatMember();
+    if (!other) return false;
+    return this.onlineUsers().includes(other.userId);
+  });
+
+  userStatusLabel = computed(() => {
+    const chat = this.chat();
+    if (!chat) return '';
+
+    if (chat.isGroup) {
+      const count = this.onlineUsersInCurrentChat().length;
+      return count === 0
+        ? 'No members online'
+        : `${count} ${count === 1 ? 'member' : 'members'} online`;
+    }
+
+    return this.isOtherUserOnline() ? 'Online' : 'Offline';
   });
 
   clearSearch() {
@@ -123,5 +167,27 @@ export class ChatHeaderComponent implements OnInit {
         takeUntilDestroyed(this._destroyRef),
       )
       .subscribe();
+  }
+
+  onlineChatMembers = computed(() =>
+    this.chatMembers().filter((m) => this.onlineUsers().includes(m.userId)),
+  );
+
+  offlineChatMembers = computed(() =>
+    this.chatMembers().filter((m) => !this.onlineUsers().includes(m.userId)),
+  );
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // ADD this signal + two methods to control the modal open/close state
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  membersModalOpen = signal(false);
+
+  openMembersModal(): void {
+    this.membersModalOpen.set(true);
+  }
+
+  closeMembersModal(): void {
+    this.membersModalOpen.set(false);
   }
 }

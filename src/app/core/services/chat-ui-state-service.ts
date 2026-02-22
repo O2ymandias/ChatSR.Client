@@ -4,9 +4,6 @@ import { Injectable, signal } from '@angular/core';
   providedIn: 'root',
 })
 export class ChatUiStateService {
-  constructor() {
-    console.log('Called ChatUiStateService constructor');
-  }
   searchTerm = signal<string>('');
   searchVisible = signal<boolean>(false);
 
