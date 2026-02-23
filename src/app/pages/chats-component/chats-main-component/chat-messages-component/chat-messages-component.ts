@@ -6,7 +6,6 @@ import {
   ElementRef,
   inject,
   input,
-  OnChanges,
   PLATFORM_ID,
   signal,
   untracked,
@@ -29,7 +28,7 @@ import { ChatUiStateService } from '../../../../core/services/chat-ui-state-serv
   templateUrl: './chat-messages-component.html',
   styleUrl: './chat-messages-component.css',
 })
-export class ChatMessagesComponent implements OnChanges {
+export class ChatMessagesComponent {
   private readonly _authService = inject(AuthService);
   private readonly _messageService = inject(MessageService);
   private readonly _messageStoreService = inject(MessageStoreService);
@@ -116,9 +115,6 @@ export class ChatMessagesComponent implements OnChanges {
 
       this._previousMessagesLength = currentLength;
     });
-  }
-  ngOnChanges(): void {
-    this._chatUiState.clearSearch();
   }
 
   onScrolledUp(): void {

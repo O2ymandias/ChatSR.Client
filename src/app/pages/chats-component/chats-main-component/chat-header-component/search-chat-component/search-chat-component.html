@@ -1,0 +1,33 @@
+<div class="flex items-center gap-4">
+  <!-- Back Button -->
+  <p-button
+    icon="pi pi-arrow-left"
+    rounded
+    text
+    severity="secondary"
+    (click)="clearSearchAndHide()"
+  />
+
+  <!-- Full Width Search -->
+  <div class="relative flex-1">
+    <input
+      pInputText
+      [(ngModel)]="searchTerm"
+      type="text"
+      placeholder="Search messages..."
+      class="w-full rounded-lg pr-10 focus:border-cyan-600 dark:focus:border-cyan-700"
+      (input)="search()"
+      autofocus
+    />
+
+    <button
+      type="button"
+      class="absolute top-1/2 right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 active:bg-gray-200 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-400 dark:active:bg-gray-600"
+      [class.opacity-100]="searchTerm()"
+      [class.opacity-0]="!searchTerm()"
+      (click)="clearSearch()"
+    >
+      <i class="pi pi-times text-sm"></i>
+    </button>
+  </div>
+</div>

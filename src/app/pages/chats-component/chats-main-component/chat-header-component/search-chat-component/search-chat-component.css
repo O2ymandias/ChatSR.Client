@@ -1,0 +1,13 @@
+.clear-btn {
+  opacity: 0;
+  transform: scale(0.75);
+
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease;
+}
+
+.clear-btn.show {
+  opacity: 1;
+  transform: scale(1);
+}

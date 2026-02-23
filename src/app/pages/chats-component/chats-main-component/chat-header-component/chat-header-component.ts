@@ -15,26 +15,23 @@ import { environment } from '../../../../environment';
 import { ChatHubService } from '../../../../core/services/chat-hub-service';
 import { NavigationService } from '../../../../core/services/navigation-service';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
 import { ChatsService } from '../../../../core/services/chats-service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { tap } from 'rxjs';
-import { InputTextModule } from 'primeng/inputtext';
-import { MessageService } from '../../../../core/services/message-service';
 import { ChatUiStateService } from '../../../../core/services/chat-ui-state-service';
 import { AuthService } from '../../../../core/services/auth-service';
 import { DialogModule } from 'primeng/dialog';
 import { MembersModalComponent } from './members-modal-component/members-modal-component';
+import { SearchChatComponent } from './search-chat-component/search-chat-component';
 
 @Component({
   selector: 'app-chat-header-component',
-  imports: [ButtonModule, FormsModule, InputTextModule, DialogModule, MembersModalComponent],
+  imports: [ButtonModule, DialogModule, MembersModalComponent, SearchChatComponent],
   templateUrl: './chat-header-component.html',
   styleUrl: './chat-header-component.css',
 })
 export class ChatHeaderComponent implements OnInit {
-  private readonly _messageService = inject(MessageService);
   private readonly _authService = inject(AuthService);
   private readonly _navigationService = inject(NavigationService);
   private readonly _chatService = inject(ChatsService);
@@ -80,12 +77,10 @@ export class ChatHeaderComponent implements OnInit {
     return `${count} people typing`;
   });
 
-  // Search
-  searchTerm = this._chatUiState.searchTerm;
   searchVisible = this._chatUiState.searchVisible;
-
-  defaultPage = this._messageService.DEFAULT_PAGE;
-  defaultPageSize = this._messageService.DEFAULT_PAGE_SIZE;
+  showSearch() {
+    this._chatUiState.showSearch();
+  }
 
   // Current User
   currentUserId = computed(
@@ -129,14 +124,6 @@ export class ChatHeaderComponent implements OnInit {
 
     return this.isOtherUserOnline() ? 'Online' : 'Offline';
   });
-
-  clearSearch() {
-    this._chatUiState.clearSearch();
-  }
-
-  search(): void {
-    this._chatUiState.searchTerm.set(this.searchTerm());
-  }
 
   goBack() {
     this._navigationService.showSidebarView();

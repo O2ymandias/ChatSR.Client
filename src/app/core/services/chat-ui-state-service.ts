@@ -4,11 +4,25 @@ import { Injectable, signal } from '@angular/core';
   providedIn: 'root',
 })
 export class ChatUiStateService {
-  searchTerm = signal<string>('');
-  searchVisible = signal<boolean>(false);
+  private _searchTerm = signal<string>('');
+  private _searchVisible = signal<boolean>(false);
+
+  searchTerm = this._searchTerm.asReadonly();
+  searchVisible = this._searchVisible.asReadonly();
+
+  setSearchTerm(term: string): void {
+    this._searchTerm.set(term);
+  }
 
   clearSearch(): void {
-    this.searchTerm.set('');
-    this.searchVisible.set(false);
+    this._searchTerm.set('');
+  }
+
+  showSearch(): void {
+    this._searchVisible.set(true);
+  }
+
+  hideSearch(): void {
+    this._searchVisible.set(false);
   }
 }

@@ -4,6 +4,7 @@ import {
   effect,
   inject,
   input,
+  OnChanges,
   OnDestroy,
   PLATFORM_ID,
   signal,
@@ -17,6 +18,7 @@ import { ChatsService } from '../../../core/services/chats-service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { isPlatformBrowser } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
+import { ChatUiStateService } from '../../../core/services/chat-ui-state-service';
 
 @Component({
   selector: 'app-chats-main-component',
@@ -24,8 +26,9 @@ import { ButtonModule } from 'primeng/button';
   templateUrl: './chats-main-component.html',
   styleUrl: './chats-main-component.css',
 })
-export class ChatsMainComponent implements OnDestroy {
+export class ChatsMainComponent implements OnDestroy, OnChanges {
   private readonly _chatsService = inject(ChatsService);
+  private readonly _chatUiStateService = inject(ChatUiStateService);
   private readonly _messageStoreService = inject(MessageStoreService);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _platformId = inject(PLATFORM_ID);
@@ -35,6 +38,10 @@ export class ChatsMainComponent implements OnDestroy {
       this._markChatAsRead();
       this._messageStoreService.setActiveChat(this.chatId());
     });
+  }
+  ngOnChanges(): void {
+    this._chatUiStateService.clearSearch();
+    this._chatUiStateService.hideSearch();
   }
   ngOnDestroy(): void {
     this._messageStoreService.clearActiveChat();
