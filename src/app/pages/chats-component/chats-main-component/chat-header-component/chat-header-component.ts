@@ -24,10 +24,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MessageService } from '../../../../core/services/message-service';
 import { ChatUiStateService } from '../../../../core/services/chat-ui-state-service';
 import { AuthService } from '../../../../core/services/auth-service';
+import { DialogModule } from 'primeng/dialog';
+import { MembersModalComponent } from './members-modal-component/members-modal-component';
 
 @Component({
   selector: 'app-chat-header-component',
-  imports: [ButtonModule, FormsModule, InputTextModule],
+  imports: [ButtonModule, FormsModule, InputTextModule, DialogModule, MembersModalComponent],
   templateUrl: './chat-header-component.html',
   styleUrl: './chat-header-component.css',
 })
@@ -169,25 +171,5 @@ export class ChatHeaderComponent implements OnInit {
       .subscribe();
   }
 
-  onlineChatMembers = computed(() =>
-    this.chatMembers().filter((m) => this.onlineUsers().includes(m.userId)),
-  );
-
-  offlineChatMembers = computed(() =>
-    this.chatMembers().filter((m) => !this.onlineUsers().includes(m.userId)),
-  );
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // ADD this signal + two methods to control the modal open/close state
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  membersModalOpen = signal(false);
-
-  openMembersModal(): void {
-    this.membersModalOpen.set(true);
-  }
-
-  closeMembersModal(): void {
-    this.membersModalOpen.set(false);
-  }
+  membersModalVisible = signal(false);
 }

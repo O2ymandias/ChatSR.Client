@@ -1,0 +1,132 @@
+<p-dialog
+  [modal]="true"
+  [(visible)]="visible"
+  [style]="{ width: '25rem' }"
+  [contentStyle]="{ padding: '0', overflow: 'hidden' }"
+  [showHeader]="false"
+  [dismissableMask]="true"
+  (onHide)="close()"
+  styleClass="members-dialog"
+>
+  <div class="modal-shell">
+    <!-- ── Header ── -->
+    <div class="modal-header">
+      <div class="header-info">
+        <h2 class="header-title">Group Members</h2>
+        <p class="header-sub">{{ groupName }} · {{ members.length }} members</p>
+      </div>
+      <p-button
+        icon="pi pi-times"
+        [rounded]="true"
+        [text]="true"
+        severity="secondary"
+        styleClass="close-btn"
+        (onClick)="close()"
+      />
+    </div>
+
+    <!-- ── Search ── -->
+    <div class="search-wrap">
+      <p-iconField iconPosition="left" styleClass="w-full">
+        <p-inputIcon styleClass="pi pi-search" />
+        <input
+          pInputText
+          type="text"
+          placeholder="Search members…"
+          [(ngModel)]="searchQuery"
+          class="search-input"
+        />
+      </p-iconField>
+    </div>
+
+    <!-- ── Members list ── -->
+    <div class="members-list">
+      <!-- Online Section -->
+      @if (onlineMembers.length > 0) {
+        <p-divider styleClass="section-divider">
+          <span class="section-label">Online — {{ onlineMembers.length }}</span>
+        </p-divider>
+
+        @for (m of onlineMembers; track m.id) {
+          <div class="member" pRipple [pTooltip]="m.statusLabel" tooltipPosition="left">
+            <!-- Avatar -->
+            <div class="avatar-wrap">
+              <p-avatar
+                [label]="m.initials"
+                shape="circle"
+                size="large"
+                [style]="{ background: m.avatarColor, color: '#fff', fontWeight: '600' }"
+              />
+              <span class="status-dot" [class]="m.status"></span>
+            </div>
+
+            <!-- Info -->
+            <div class="member-info">
+              <p class="member-name">{{ m.name }}</p>
+              <p class="member-status" [class]="m.status">{{ m.statusLabel }}</p>
+            </div>
+
+            <!-- Role Tag -->
+            @if (m.role !== 'member') {
+              <p-tag
+                [value]="m.role | titlecase"
+                [severity]="m.role === 'admin' ? 'success' : 'info'"
+                styleClass="role-tag"
+              />
+            }
+          </div>
+        }
+      }
+
+      <!-- Offline Section -->
+      @if (offlineMembers.length > 0) {
+        <p-divider styleClass="section-divider">
+          <span class="section-label">Offline — {{ offlineMembers.length }}</span>
+        </p-divider>
+
+        @for (m of offlineMembers; track m.id) {
+          <div class="member" pRipple [pTooltip]="m.statusLabel" tooltipPosition="left">
+            <div class="avatar-wrap">
+              <p-avatar
+                [label]="m.initials"
+                shape="circle"
+                size="large"
+                [style]="{ background: m.avatarColor, color: '#fff', fontWeight: '600' }"
+              />
+              <span class="status-dot offline"></span>
+            </div>
+
+            <div class="member-info">
+              <p class="member-name">{{ m.name }}</p>
+              <p class="member-status offline">{{ m.statusLabel }}</p>
+            </div>
+
+            @if (m.role !== 'member') {
+              <p-tag
+                [value]="m.role | titlecase"
+                [severity]="m.role === 'admin' ? 'success' : 'info'"
+                styleClass="role-tag"
+              />
+            }
+          </div>
+        }
+      }
+
+      <!-- Empty state -->
+      @if (onlineMembers.length === 0 && offlineMembers.length === 0) {
+        <div class="empty-state">
+          <i class="pi pi-users"></i>
+          <p>No members found</p>
+        </div>
+      }
+    </div>
+
+    <!-- ── Footer ── -->
+    <div class="modal-footer">
+      <span class="footer-stat">
+        <span class="stat-online">{{ onlineCount }}</span> online · {{ offlineCount }} offline
+      </span>
+      <p-button label="+ Invite" styleClass="invite-btn" size="small" />
+    </div>
+  </div>
+</p-dialog>

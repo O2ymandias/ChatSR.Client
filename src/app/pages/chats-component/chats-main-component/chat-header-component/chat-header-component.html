@@ -1,109 +1,124 @@
-<div
-  class="grid grid-cols-[auto_1fr_auto] items-center gap-4 border-b-2 border-neutral-200 px-8 py-4 dark:border-neutral-800"
->
-  <!-- Chat Info -->
-  <div class="flex items-center gap-2">
-    <p-button icon="pi pi-arrow-left" rounded text severity="secondary" (click)="goBack()" />
+<!-- ================= HEADER ================= -->
+<div class="border-b-2 border-neutral-200 px-8 py-4 dark:border-neutral-800">
+  @if (!searchVisible()) {
+    <!-- Normal Header -->
+    <div class="grid grid-cols-4 items-start gap-4">
+      <!-- Chat Info -->
+      <div class="col-span-3 flex items-start gap-3">
+        <p-button icon="pi pi-arrow-left" rounded text severity="secondary" (click)="goBack()" />
 
-    <div class="flex items-center gap-2">
-      @if (chat()?.displayPictureUrl) {
-        <img
-          [src]="`${serverUrl}/${chat()?.displayPictureUrl}`"
-          class="size-10 rounded-full object-cover"
-        />
-      } @else {
-        <div
-          class="flex size-10 items-center justify-center rounded-full"
-          [class]="
-            chat()?.isGroup
-              ? 'bg-linear-to-br from-teal-400 via-teal-500 to-teal-600'
-              : 'bg-linear-to-br from-sky-400 via-sky-500 to-sky-600'
-          "
-        >
-          <span class="font-semibold text-white uppercase">
-            {{ chat()?.name?.charAt(0) }}
-          </span>
-        </div>
-      }
-
-      <div>
-        <p class="font-bold text-neutral-900 dark:text-neutral-100">{{ chat()?.name }}</p>
-
-        @if (typingUsersInCurrentChat().length > 0) {
-          <p class="typing-indicator text-primary flex items-baseline gap-1 text-sm font-medium">
-            <span>{{ typingText() }}</span>
-            <span class="typing-dots"> <span></span><span></span><span></span> </span>
-          </p>
-        } @else {
-          <div class="flex items-center gap-1.5">
-            <!-- Status dot -->
-            <span
-              class="inline-block h-2 w-2 rounded-full"
-              [class]="
-                onlineUsersInCurrentChat().length > 0
-                  ? 'bg-green-400'
-                  : 'bg-neutral-400 dark:bg-neutral-500'
-              "
-            ></span>
-
-            <!-- Status label -->
-            <p
-              class="text-sm"
-              [class]="
-                onlineUsersInCurrentChat().length > 0
-                  ? 'text-green-500 dark:text-green-400'
-                  : 'text-neutral-500 dark:text-neutral-400'
-              "
-            >
-              {{ userStatusLabel() }}
-            </p>
+        <div class="flex items-start gap-3">
+          <!-- Avatar -->
+          <div class="shrink-0 cursor-pointer" (click)="membersModalVisible.set(true)">
+            @if (chat()?.displayPictureUrl) {
+              <img
+                [src]="`${serverUrl}/${chat()?.displayPictureUrl}`"
+                class="size-12 rounded-full object-cover"
+              />
+            } @else {
+              <div
+                class="flex size-12 items-center justify-center rounded-full"
+                [class]="
+                  chat()?.isGroup
+                    ? 'bg-linear-to-br from-teal-400 via-teal-500 to-teal-600'
+                    : 'bg-linear-to-br from-sky-400 via-sky-500 to-sky-600'
+                "
+              >
+                <span class="font-semibold text-white uppercase">
+                  {{ chat()?.name?.charAt(0) }}
+                </span>
+              </div>
+            }
           </div>
-        }
+
+          <!-- Name + Status -->
+          <div class="flex min-w-0 flex-col">
+            <p class="truncate font-bold text-neutral-900 dark:text-neutral-100">
+              {{ chat()?.name }}
+            </p>
+
+            @if (typingUsersInCurrentChat().length > 0) {
+              <p
+                class="typing-indicator text-primary flex flex-wrap items-baseline gap-1 text-sm font-medium"
+              >
+                <span>{{ typingText() }}</span>
+                <span class="typing-dots"> <span></span><span></span><span></span> </span>
+              </p>
+            } @else {
+              <div class="flex items-center gap-2">
+                <span
+                  class="inline-block h-2 w-2 rounded-full"
+                  [class]="
+                    onlineUsersInCurrentChat().length > 0
+                      ? 'bg-green-400'
+                      : 'bg-neutral-400 dark:bg-neutral-500'
+                  "
+                ></span>
+
+                <p
+                  class="text-sm"
+                  [class]="
+                    onlineUsersInCurrentChat().length > 0
+                      ? 'text-green-500 dark:text-green-400'
+                      : 'text-neutral-500 dark:text-neutral-400'
+                  "
+                >
+                  {{ userStatusLabel() }}
+                </p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="col-span-1 flex items-center justify-end gap-2">
+        <p-button
+          icon="pi pi-search"
+          rounded
+          text
+          severity="secondary"
+          (click)="searchVisible.set(true)"
+        />
+
+        <p-button icon="pi pi-ellipsis-v" rounded text severity="secondary" />
       </div>
     </div>
-  </div>
+  } @else {
+    <!-- ================= FULL SEARCH HEADER ================= -->
+    <div class="flex items-center gap-4">
+      <!-- Back Button -->
+      <p-button icon="pi pi-arrow-left" rounded text severity="secondary" (click)="clearSearch()" />
 
-  <!-- Search Input -->
-  <div class="flex justify-center">
-    <div
-      [class.opacity-100]="searchVisible()"
-      [class.opacity-0]="!searchVisible()"
-      class="relative w-full max-w-96 transition-all duration-150 ease-in-out"
-    >
-      <input
-        pInputText
-        [(ngModel)]="searchTerm"
-        type="text"
-        placeholder="Search messages..."
-        class="w-full rounded-full pr-10 focus:border-cyan-600 dark:focus:border-cyan-700"
-        (input)="search()"
-      />
+      <!-- Full Width Search -->
+      <div class="relative flex-1">
+        <input
+          pInputText
+          [(ngModel)]="searchTerm"
+          type="text"
+          placeholder="Search messages..."
+          class="w-full rounded-full pr-10 focus:border-cyan-600 dark:focus:border-cyan-700"
+          (input)="search()"
+          autofocus
+        />
 
-      <button
-        type="button"
-        class="clear-btn absolute top-1/2 right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 active:bg-gray-200 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-400 dark:active:bg-gray-600"
-        [class.show]="searchTerm()"
-        (click)="clearSearch()"
-      >
-        <i class="pi pi-times text-sm"></i>
-      </button>
+        <button
+          type="button"
+          class="absolute top-1/2 right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 active:bg-gray-200 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-400 dark:active:bg-gray-600"
+          [class.opacity-100]="searchTerm()"
+          [class.opacity-0]="!searchTerm()"
+          (click)="clearSearch()"
+        >
+          <i class="pi pi-times text-sm"></i>
+        </button>
+      </div>
     </div>
-  </div>
-
-  <!-- Actions -->
-  <div class="flex items-center gap-2">
-    @if (searchVisible()) {
-      <p-button icon="pi pi-times" rounded outlined severity="danger" (click)="clearSearch()" />
-    } @else {
-      <p-button
-        icon="pi pi-search"
-        rounded
-        text
-        severity="secondary"
-        (click)="searchVisible.set(true)"
-      />
-    }
-
-    <p-button icon="pi pi-ellipsis-v" rounded text severity="secondary" />
-  </div>
+  }
 </div>
+
+<!-- Members Modal -->
+<app-members-modal-component
+  [(visible)]="membersModalVisible"
+  [groupName]="chat()?.name || ''"
+  (onHide)="membersModalVisible.set(false)"
+/>
