@@ -1,4 +1,13 @@
-import { Component, computed, EventEmitter, inject, input, Input, Output } from '@angular/core';
+import {
+  Component,
+  computed,
+  EventEmitter,
+  inject,
+  input,
+  Input,
+  Output,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -52,22 +61,31 @@ export class MembersModalComponent {
   private readonly _authService = inject(AuthService);
   private readonly _chatHubService = inject(ChatHubService);
 
-  groupName = input.required<string>();
-
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
+
+  groupName = input.required<string>();
+
+  searchTerm = signal('');
 
   chatMembers = input.required<ChatMemberResponse[]>();
 
   onlineUsersIds = this._chatHubService.onlineUsers;
 
+  filteredMembers = computed(() => {
+    const searchTerm = this.searchTerm().toLowerCase();
+    if (!searchTerm) return this.chatMembers();
+
+    return this.chatMembers().filter((m) => m.displayName.toLowerCase().includes(searchTerm));
+  });
+
   onlineMembers = computed(() => {
-    const chatMembers = this.chatMembers();
+    const filteredMembers = this.filteredMembers();
     const onlineUsersIds = this.onlineUsersIds();
     const currentUserId = this.currentUserId();
 
-    const currentUser = chatMembers.find((m) => m.userId === currentUserId);
-    const onlineMembers = chatMembers.filter((m) => onlineUsersIds.includes(m.userId));
+    const currentUser = filteredMembers.find((m) => m.userId === currentUserId);
+    const onlineMembers = filteredMembers.filter((m) => onlineUsersIds.includes(m.userId));
 
     if (currentUser) onlineMembers.unshift(currentUser); // add current user to online members list
 
@@ -75,13 +93,11 @@ export class MembersModalComponent {
   });
 
   offlineMembers = computed(() => {
-    const chatMembers = this.chatMembers();
+    const filteredMembers = this.filteredMembers();
     const onlineUsersIds = this.onlineUsersIds();
     const currentUserId = this.currentUserId();
 
-    const currentUser = chatMembers.find((m) => m.userId === currentUserId);
-
-    const offlineMembers = chatMembers
+    const offlineMembers = filteredMembers
       .filter((m) => m.userId !== currentUserId) // exclude current user from offline members list
       .filter((m) => !onlineUsersIds.includes(m.userId));
 
@@ -95,10 +111,12 @@ export class MembersModalComponent {
       ],
   );
 
-  searchQuery = '';
-
   close(): void {
     this.visible = false;
     this.visibleChange.emit(false);
+  }
+
+  clearSearch(): void {
+    this.searchTerm.set('');
   }
 }

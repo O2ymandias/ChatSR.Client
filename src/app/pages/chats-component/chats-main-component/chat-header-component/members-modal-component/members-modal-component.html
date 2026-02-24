@@ -37,15 +37,24 @@
 
     <!-- SEARCH -->
     <div class="border-b border-neutral-200 px-5 py-3 dark:border-neutral-800">
-      <p-iconField iconPosition="right" class="w-full">
+      <p-iconField iconPosition="left" class="relative w-full">
         <p-inputIcon class="pi pi-search text-neutral-400" />
         <input
           pInputText
           type="text"
           placeholder="Search members..."
-          [(ngModel)]="searchQuery"
+          [(ngModel)]="searchTerm"
           class="w-full rounded-lg focus:border-cyan-600 dark:focus:border-cyan-700"
         />
+        <button
+          type="button"
+          class="absolute top-1/2 right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 active:bg-gray-200 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-400 dark:active:bg-gray-600"
+          [class.opacity-100]="searchTerm()"
+          [class.opacity-0]="!searchTerm()"
+          (click)="clearSearch()"
+        >
+          <i class="pi pi-times text-sm"></i>
+        </button>
       </p-iconField>
     </div>
 
@@ -148,7 +157,9 @@
       <!-- EMPTY STATE -->
       @if (onlineMembers().length === 0 && offlineMembers().length === 0) {
         <div class="flex flex-col items-center gap-4 py-14 text-neutral-500 dark:text-neutral-400">
-          <div class="rounded-full bg-neutral-100 p-4 dark:bg-neutral-800">
+          <div
+            class="flex size-14 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800"
+          >
             <i class="pi pi-users text-2xl"></i>
           </div>
           <p class="text-sm">No members found</p>
