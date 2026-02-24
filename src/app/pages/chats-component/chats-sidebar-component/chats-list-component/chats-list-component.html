@@ -9,24 +9,19 @@
         <!-- Avatar with status indicator -->
         <div class="relative shrink-0">
           @if (chat.displayPictureUrl) {
-            <img
-              [src]="`${serverUrl}/${chat.displayPictureUrl}`"
-              class="size-12 rounded-full object-cover ring-2 ring-gray-100 dark:ring-gray-800"
-              [alt]="chat.name"
+            <p-avatar
+              [image]="serverUrl + '/' + chat.displayPictureUrl"
+              shape="circle"
+              size="large"
+              class="size-12 object-cover ring-2 ring-neutral-100 dark:ring-neutral-800"
             />
           } @else {
-            <div
-              class="flex size-12 items-center justify-center rounded-full shadow-sm"
-              [class]="
-                chat.isGroup
-                  ? 'bg-linear-to-br from-teal-400 via-teal-500 to-teal-600'
-                  : 'bg-linear-to-br from-sky-400 via-sky-500 to-sky-600'
-              "
-            >
-              <span class="text-lg font-semibold text-white uppercase">
-                {{ chat.name.charAt(0) }}
-              </span>
-            </div>
+            <p-avatar
+              [icon]="chat.isGroup ? 'pi pi-users' : 'pi pi-user'"
+              shape="circle"
+              size="large"
+              class="size-12 bg-neutral-200 text-neutral-600 shadow-sm ring-2 ring-neutral-100 dark:bg-neutral-800 dark:text-neutral-300 dark:ring-neutral-800"
+            />
           }
         </div>
 

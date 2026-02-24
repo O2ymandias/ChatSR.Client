@@ -10,10 +10,11 @@ import { environment } from '../../../../environment';
 import { NavigationService } from '../../../../core/services/navigation-service';
 import { MessageStoreService } from '../../../../core/services/message-store-service';
 import { BadgeModule } from 'primeng/badge';
+import { AvatarModule } from "primeng/avatar";
 
 @Component({
   selector: 'app-chats-list-component',
-  imports: [ChatDatePipe, RouterLink, RouterLinkActive, BadgeModule],
+  imports: [ChatDatePipe, RouterLink, RouterLinkActive, BadgeModule, AvatarModule],
   templateUrl: './chats-list-component.html',
   styleUrl: './chats-list-component.css',
 })

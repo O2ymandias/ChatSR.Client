@@ -10,15 +10,17 @@
 
   <!-- Full Width Search -->
   <div class="relative flex-1">
-    <input
-      pInputText
-      [(ngModel)]="searchTerm"
-      type="text"
-      placeholder="Search messages..."
-      class="w-full rounded-lg pr-10 focus:border-cyan-600 dark:focus:border-cyan-700"
-      (input)="search()"
-      autofocus
-    />
+    <p-iconField iconPosition="right" class="w-full">
+      <p-inputIcon class="pi pi-search text-neutral-400" />
+      <input
+        pInputText
+        [(ngModel)]="searchTerm"
+        type="text"
+        placeholder="Search messages..."
+        class="w-full rounded-lg focus:border-cyan-600 dark:focus:border-cyan-700"
+        (input)="search()"
+      />
+    </p-iconField>
 
     <button
       type="button"

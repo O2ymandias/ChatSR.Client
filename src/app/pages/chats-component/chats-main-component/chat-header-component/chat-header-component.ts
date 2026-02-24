@@ -15,7 +15,7 @@ import { environment } from '../../../../environment';
 import { ChatHubService } from '../../../../core/services/chat-hub-service';
 import { NavigationService } from '../../../../core/services/navigation-service';
 import { Router } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, TitleCasePipe } from '@angular/common';
 import { ChatsService } from '../../../../core/services/chats-service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { tap } from 'rxjs';
@@ -24,10 +24,18 @@ import { AuthService } from '../../../../core/services/auth-service';
 import { DialogModule } from 'primeng/dialog';
 import { MembersModalComponent } from './members-modal-component/members-modal-component';
 import { SearchChatComponent } from './search-chat-component/search-chat-component';
+import { AvatarModule } from 'primeng/avatar';
 
 @Component({
   selector: 'app-chat-header-component',
-  imports: [ButtonModule, DialogModule, MembersModalComponent, SearchChatComponent],
+  imports: [
+    ButtonModule,
+    DialogModule,
+    MembersModalComponent,
+    SearchChatComponent,
+    AvatarModule,
+    TitleCasePipe,
+  ],
   templateUrl: './chat-header-component.html',
   styleUrl: './chat-header-component.css',
 })
@@ -116,10 +124,8 @@ export class ChatHeaderComponent implements OnInit {
     if (!chat) return '';
 
     if (chat.isGroup) {
-      const count = this.onlineUsersInCurrentChat().length;
-      return count === 0
-        ? 'No members online'
-        : `${count} ${count === 1 ? 'member' : 'members'} online`;
+      const membersCount = this.chatMembers().length;
+      return `${membersCount} member${membersCount > 1 ? 's' : ''}`;
     }
 
     return this.isOtherUserOnline() ? 'Online' : 'Offline';

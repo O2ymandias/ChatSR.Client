@@ -3,10 +3,12 @@ import { ButtonModule } from 'primeng/button';
 import { ChatUiStateService } from '../../../../../core/services/chat-ui-state-service';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { IconFieldModule } from "primeng/iconfield";
+import { InputIconModule } from "primeng/inputicon";
 
 @Component({
   selector: 'app-search-chat-component',
-  imports: [ButtonModule, FormsModule, InputTextModule],
+  imports: [ButtonModule, FormsModule, InputTextModule, IconFieldModule, InputIconModule],
   templateUrl: './search-chat-component.html',
   styleUrl: './search-chat-component.css',
 })

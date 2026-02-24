@@ -3,9 +3,7 @@
 
   <p-iconField iconPosition="left" class="relative w-full">
     <!-- Search icon -->
-    <p-inputIcon>
-      <i class="pi pi-search"></i>
-    </p-inputIcon>
+    <p-inputIcon class="pi pi-search text-neutral-400" />
 
     <!-- Input -->
     <input
@@ -13,13 +11,12 @@
       type="text"
       pInputText
       placeholder="Search chats..."
-      class="w-full rounded-full px-10 focus:border-cyan-600 dark:focus:border-cyan-700"
+      class="w-full rounded-lg px-10 focus:border-cyan-600 dark:focus:border-cyan-700"
       [(ngModel)]="searchQuery"
       [autofocus]="true"
     />
 
     <!-- Clear button -->
-
     <button
       type="button"
       class="clear-btn absolute top-1/2 right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 active:bg-gray-200 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-400 dark:active:bg-gray-600"

@@ -1,4 +1,4 @@
-<!-- ================= HEADER ================= -->
+<!-- HEADER -->
 <div class="border-b-2 border-neutral-200 px-8 py-4 dark:border-neutral-800">
   @if (!searchVisible()) {
     <!-- Normal Header -->
@@ -11,30 +11,26 @@
           <!-- Avatar -->
           <div class="shrink-0 cursor-pointer" (click)="membersModalVisible.set(true)">
             @if (chat()?.displayPictureUrl) {
-              <img
-                [src]="`${serverUrl}/${chat()?.displayPictureUrl}`"
-                class="size-12 rounded-full object-cover"
+              <p-avatar
+                [image]="serverUrl + '/' + chat()?.displayPictureUrl"
+                shape="circle"
+                size="large"
+                class="size-12 shadow-sm"
               />
             } @else {
-              <div
-                class="flex size-12 items-center justify-center rounded-full"
-                [class]="
-                  chat()?.isGroup
-                    ? 'bg-linear-to-br from-teal-400 via-teal-500 to-teal-600'
-                    : 'bg-linear-to-br from-sky-400 via-sky-500 to-sky-600'
-                "
-              >
-                <span class="font-semibold text-white uppercase">
-                  {{ chat()?.name?.charAt(0) }}
-                </span>
-              </div>
+              <p-avatar
+                [icon]="chat()?.isGroup ? 'pi pi-users' : 'pi pi-user'"
+                shape="circle"
+                size="large"
+                class="size-12 bg-neutral-200 text-neutral-600 shadow-sm dark:bg-neutral-800 dark:text-neutral-300"
+              />
             }
           </div>
 
           <!-- Name + Status -->
           <div class="flex min-w-0 flex-col">
             <p class="truncate font-bold text-neutral-900 dark:text-neutral-100">
-              {{ chat()?.name }}
+              {{ chat()?.name | titlecase }}
             </p>
 
             @if (typingUsersInCurrentChat().length > 0) {
@@ -46,14 +42,16 @@
               </p>
             } @else {
               <div class="flex items-center gap-2">
-                <span
-                  class="inline-block h-2 w-2 rounded-full"
-                  [class]="
-                    onlineUsersInCurrentChat().length > 0
-                      ? 'bg-green-400'
-                      : 'bg-neutral-400 dark:bg-neutral-500'
-                  "
-                ></span>
+                @if (!chat()?.isGroup) {
+                  <span
+                    class="inline-block h-2 w-2 rounded-full"
+                    [class]="
+                      onlineUsersInCurrentChat().length > 0
+                        ? 'bg-green-400'
+                        : 'bg-neutral-400 dark:bg-neutral-500'
+                    "
+                  ></span>
+                }
 
                 <p
                   class="text-sm"
