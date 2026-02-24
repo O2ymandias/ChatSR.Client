@@ -24,6 +24,6 @@ export type ChatMemberResponse = {
   userId: string;
   displayName: string;
   pictureUrl: string | null;
-  role: string;
+  role: 'Admin' | 'Member';
   joinedAt: string;
 };

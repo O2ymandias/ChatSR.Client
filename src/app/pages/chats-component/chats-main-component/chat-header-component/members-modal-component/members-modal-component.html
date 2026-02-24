@@ -1,132 +1,173 @@
 <p-dialog
-  [modal]="true"
   [(visible)]="visible"
-  [style]="{ width: '25rem' }"
-  [contentStyle]="{ padding: '0', overflow: 'hidden' }"
+  [modal]="true"
   [showHeader]="false"
+  [contentStyle]="{ padding: '0' }"
   [dismissableMask]="true"
   (onHide)="close()"
-  styleClass="members-dialog"
+  [style]="{ width: '26rem' }"
+  [breakpoints]="{
+    '1536px': '30vw',
+    '1280px': '40vw',
+    '1024px': '55vw',
+    '768px': '70vw',
+    '640px': '95vw',
+  }"
+  [draggable]="false"
+  [resizable]="false"
 >
-  <div class="modal-shell">
-    <!-- ── Header ── -->
-    <div class="modal-header">
-      <div class="header-info">
-        <h2 class="header-title">Group Members</h2>
-        <p class="header-sub">{{ groupName }} · {{ members.length }} members</p>
+  <div
+    class="flex max-h-[85vh] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-neutral-900"
+  >
+    <!-- HEADER -->
+    <div
+      class="sticky top-0 z-10 flex items-center justify-between border-b border-neutral-200 bg-white/80 px-6 py-5 backdrop-blur-md dark:border-neutral-800 dark:bg-neutral-900/80"
+    >
+      <div class="space-y-1">
+        <h2 class="text-xl font-semibold tracking-tight capitalize">
+          {{ groupName() }}
+        </h2>
+        <p class="text-xs text-neutral-500 dark:text-neutral-400">
+          {{ chatMembers().length }} members
+        </p>
       </div>
-      <p-button
-        icon="pi pi-times"
-        [rounded]="true"
-        [text]="true"
-        severity="secondary"
-        styleClass="close-btn"
-        (onClick)="close()"
-      />
+
+      <p-button icon="pi pi-times" rounded text severity="secondary" (onClick)="close()" />
     </div>
 
-    <!-- ── Search ── -->
-    <div class="search-wrap">
-      <p-iconField iconPosition="left" styleClass="w-full">
-        <p-inputIcon styleClass="pi pi-search" />
+    <!-- SEARCH -->
+    <div class="border-b border-neutral-200 px-5 py-3 dark:border-neutral-800">
+      <p-iconField iconPosition="right" class="w-full">
+        <p-inputIcon class="pi pi-search text-neutral-400" />
         <input
           pInputText
           type="text"
-          placeholder="Search members…"
+          placeholder="Search members..."
           [(ngModel)]="searchQuery"
-          class="search-input"
+          class="focus:ring-primary/40 w-full rounded-xl border-neutral-300 bg-neutral-50 focus:bg-white focus:ring-2 dark:border-neutral-700 dark:bg-neutral-800 dark:focus:bg-neutral-700"
         />
       </p-iconField>
     </div>
 
-    <!-- ── Members list ── -->
-    <div class="members-list">
-      <!-- Online Section -->
-      @if (onlineMembers.length > 0) {
-        <p-divider styleClass="section-divider">
-          <span class="section-label">Online — {{ onlineMembers.length }}</span>
+    <!-- MEMBERS LIST -->
+    <div
+      class="scrollbar-thin scrollbar-thumb-neutral-400 dark:scrollbar-thumb-neutral-700 flex-1 overflow-y-auto px-3 py-2"
+    >
+      <!-- ONLINE MEMBERS -->
+      @if (onlineMembers().length > 0) {
+        <p-divider class="my-3">
+          <span class="text-[11px] font-semibold tracking-wider text-green-500 uppercase">
+            Online — {{ onlineMembers().length }}
+          </span>
         </p-divider>
 
-        @for (m of onlineMembers; track m.id) {
-          <div class="member" pRipple [pTooltip]="m.statusLabel" tooltipPosition="left">
-            <!-- Avatar -->
-            <div class="avatar-wrap">
-              <p-avatar
-                [label]="m.initials"
-                shape="circle"
-                size="large"
-                [style]="{ background: m.avatarColor, color: '#fff', fontWeight: '600' }"
-              />
-              <span class="status-dot" [class]="m.status"></span>
+        @for (onlineMember of onlineMembers(); track onlineMember.userId) {
+          <div
+            class="group mx-2 my-1 flex cursor-pointer items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+            pRipple
+          >
+            <div class="relative">
+              @if (onlineMember.pictureUrl) {
+                <p-avatar [image]="onlineMember.pictureUrl" shape="circle" size="large" />
+              } @else {
+                <p-avatar icon="pi pi-user" shape="circle" size="large" />
+              }
+
+              <!-- Online indicator -->
+              <span
+                class="absolute -right-0.5 -bottom-0.5 size-3 rounded-full bg-green-500 ring-2 ring-white dark:ring-neutral-900"
+              ></span>
             </div>
 
-            <!-- Info -->
-            <div class="member-info">
-              <p class="member-name">{{ m.name }}</p>
-              <p class="member-status" [class]="m.status">{{ m.statusLabel }}</p>
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-medium">
+                {{ onlineMember.displayName }}
+              </p>
+
+              @if (onlineMember.userId === currentUserId()) {
+                <p class="text-xs text-neutral-500 dark:text-neutral-400">(You)</p>
+              }
             </div>
 
-            <!-- Role Tag -->
-            @if (m.role !== 'member') {
+            @if (onlineMember.role !== 'Member') {
               <p-tag
-                [value]="m.role | titlecase"
-                [severity]="m.role === 'admin' ? 'success' : 'info'"
-                styleClass="role-tag"
+                [value]="onlineMember.role | titlecase"
+                severity="info"
+                class="text-[10px] font-semibold uppercase"
               />
             }
           </div>
         }
       }
 
-      <!-- Offline Section -->
-      @if (offlineMembers.length > 0) {
-        <p-divider styleClass="section-divider">
-          <span class="section-label">Offline — {{ offlineMembers.length }}</span>
+      <!-- OFFLINE MEMBERS -->
+      @if (offlineMembers().length > 0) {
+        <p-divider class="my-3">
+          <span
+            class="text-[11px] font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400"
+          >
+            Offline — {{ offlineMembers().length }}
+          </span>
         </p-divider>
 
-        @for (m of offlineMembers; track m.id) {
-          <div class="member" pRipple [pTooltip]="m.statusLabel" tooltipPosition="left">
-            <div class="avatar-wrap">
-              <p-avatar
-                [label]="m.initials"
-                shape="circle"
-                size="large"
-                [style]="{ background: m.avatarColor, color: '#fff', fontWeight: '600' }"
-              />
-              <span class="status-dot offline"></span>
+        @for (offlineMember of offlineMembers(); track offlineMember.userId) {
+          <div
+            class="group mx-2 my-1 flex cursor-pointer items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+            pRipple
+          >
+            <div class="relative">
+              @if (offlineMember.pictureUrl) {
+                <p-avatar [image]="offlineMember.pictureUrl" shape="circle" size="large" />
+              } @else {
+                <p-avatar icon="pi pi-user" shape="circle" size="large" />
+              }
+
+              <!-- Offline indicator -->
+              <span
+                class="absolute -right-0.5 -bottom-0.5 size-3 rounded-full bg-neutral-400 ring-2 ring-white dark:ring-neutral-900"
+              ></span>
             </div>
 
-            <div class="member-info">
-              <p class="member-name">{{ m.name }}</p>
-              <p class="member-status offline">{{ m.statusLabel }}</p>
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-medium">
+                {{ offlineMember.displayName }}
+              </p>
             </div>
 
-            @if (m.role !== 'member') {
+            @if (offlineMember.role !== 'Member') {
               <p-tag
-                [value]="m.role | titlecase"
-                [severity]="m.role === 'admin' ? 'success' : 'info'"
-                styleClass="role-tag"
+                [value]="offlineMember.role | titlecase"
+                severity="contrast"
+                class="text-[10px] font-semibold uppercase"
               />
             }
           </div>
         }
       }
 
-      <!-- Empty state -->
-      @if (onlineMembers.length === 0 && offlineMembers.length === 0) {
-        <div class="empty-state">
-          <i class="pi pi-users"></i>
-          <p>No members found</p>
+      <!-- EMPTY STATE -->
+      @if (onlineMembers().length === 0 && offlineMembers().length === 0) {
+        <div class="flex flex-col items-center gap-4 py-14 text-neutral-500 dark:text-neutral-400">
+          <div class="rounded-full bg-neutral-100 p-4 dark:bg-neutral-800">
+            <i class="pi pi-users text-2xl"></i>
+          </div>
+          <p class="text-sm">No members found</p>
         </div>
       }
     </div>
 
-    <!-- ── Footer ── -->
-    <div class="modal-footer">
-      <span class="footer-stat">
-        <span class="stat-online">{{ onlineCount }}</span> online · {{ offlineCount }} offline
+    <!-- FOOTER -->
+    <div
+      class="sticky bottom-0 flex items-center justify-between border-t border-neutral-200 bg-white px-6 py-4 dark:border-neutral-800 dark:bg-neutral-900"
+    >
+      <span class="text-xs text-neutral-500 dark:text-neutral-400">
+        <span class="font-semibold text-green-500">
+          {{ onlineMembers().length }}
+        </span>
+        online · {{ offlineMembers().length }} offline
       </span>
-      <p-button label="+ Invite" styleClass="invite-btn" size="small" />
+
+      <p-button icon="pi pi-plus" severity="secondary" label="Invite" size="small" />
     </div>
   </div>
 </p-dialog>

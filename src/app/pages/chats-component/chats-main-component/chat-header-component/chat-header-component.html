@@ -86,6 +86,7 @@
 <!-- Members Modal -->
 <app-members-modal-component
   [(visible)]="membersModalVisible"
-  [groupName]="chat()?.name || ''"
+  [groupName]="chat()?.name ?? 'Group Chat'"
+  [chatMembers]="chatMembers()"
   (onHide)="membersModalVisible.set(false)"
 />
