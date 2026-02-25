@@ -1,25 +1,30 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { ChatHubService } from '../../../../core/services/chat-hub-service';
 import { TextareaModule } from 'primeng/textarea';
 import { FormsModule } from '@angular/forms';
+import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-chat-input-component',
-  imports: [ButtonModule, TextareaModule, FormsModule],
+  imports: [ButtonModule, TextareaModule, FormsModule, MessageModule],
   templateUrl: './chat-input-component.html',
   styleUrl: './chat-input-component.css',
 })
 export class ChatInputComponent {
   private readonly _chatHubService = inject(ChatHubService);
 
+  MAX_MESSAGE_LENGTH = 2000;
+
   chatId = input.required<string>();
   messageContent = signal('');
 
-  get invalid() {
-    const content = this.messageContent().trim();
-    return content.length > 2000;
-  }
+  invalid = computed(() => {
+    const content = this.messageContent()?.trim() ?? '';
+    return content.length > this.MAX_MESSAGE_LENGTH || content.length === 0;
+  });
+
+  charCount = computed(() => this.messageContent().length);
 
   onTyping() {
     this._chatHubService.notifyTyping(this.chatId());
@@ -28,6 +33,7 @@ export class ChatInputComponent {
   sendMessage() {
     const content = this.messageContent().trim();
     if (content.length === 0 || content.length > 2000) return;
+
     this._chatHubService.sendMessage(this.chatId(), { content }).then(() => {
       this.messageContent.set('');
       this._chatHubService.stopTyping(this.chatId());

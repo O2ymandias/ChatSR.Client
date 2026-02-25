@@ -1,15 +1,37 @@
-<div class="border-t-2 border-neutral-200 px-8 py-4 dark:border-neutral-800">
-  <div class="flex items-center justify-between gap-4">
-    <textarea
-      pTextarea
-      autoResize
-      rows="1"
-      placeholder="Type a message"
-      class="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-300/50 hover:scrollbar-thumb-slate-400/70 dark:scrollbar-thumb-slate-700 dark:hover:scrollbar-thumb-slate-600 max-h-40 w-full rounded-lg border border-neutral-300 px-4 py-2 leading-6 focus:border-cyan-600 focus:outline-none dark:border-neutral-700 dark:focus:border-cyan-700"
-      (keydown)="onTyping()"
-      [(ngModel)]="messageContent"
-    ></textarea>
+<div class="space-y-2 border-t-2 border-neutral-200 px-8 py-4 dark:border-neutral-800">
+  <div class="flex items-end justify-between gap-4">
+    <!-- Wrapper -->
+    <div class="relative w-full">
+      <textarea
+        pTextarea
+        autoResize
+        rows="1"
+        placeholder="Type a message"
+        class="max-h-40 w-full rounded-lg border border-neutral-300 px-4 py-2 pr-16 focus:border-cyan-600 focus:outline-none dark:border-neutral-700 dark:focus:border-cyan-700"
+        (keydown)="onTyping()"
+        [(ngModel)]="messageContent"
+      ></textarea>
 
-    <p-button rounded icon="pi pi-send" outlined severity="info" (click)="sendMessage()" />
+      <!-- Character Counter -->
+      <span
+        class="pointer-events-none absolute right-2 bottom-2 text-xs"
+        [class]="
+          charCount() > MAX_MESSAGE_LENGTH
+            ? 'text-red-500'
+            : 'text-neutral-400 dark:text-neutral-500'
+        "
+      >
+        {{ charCount() }}/{{ MAX_MESSAGE_LENGTH }}
+      </span>
+    </div>
+
+    <p-button
+      rounded
+      icon="pi pi-send"
+      outlined
+      severity="info"
+      (click)="sendMessage()"
+      [disabled]="invalid()"
+    />
   </div>
 </div>
