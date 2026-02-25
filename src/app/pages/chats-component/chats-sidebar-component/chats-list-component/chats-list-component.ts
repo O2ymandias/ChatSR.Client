@@ -1,6 +1,5 @@
-import { Component, DestroyRef, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { ChatsService } from '../../../../core/services/chats-service';
-import { ChatListResponse } from '../../../../shared/models/chats.model';
 import { isPlatformBrowser } from '@angular/common';
 import { filter, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -10,7 +9,7 @@ import { environment } from '../../../../environment';
 import { NavigationService } from '../../../../core/services/navigation-service';
 import { MessageStoreService } from '../../../../core/services/message-store-service';
 import { BadgeModule } from 'primeng/badge';
-import { AvatarModule } from "primeng/avatar";
+import { AvatarModule } from 'primeng/avatar';
 
 @Component({
   selector: 'app-chats-list-component',
@@ -28,7 +27,7 @@ export class ChatsListComponent implements OnInit {
 
   serverUrl = environment.serverUrl;
 
-  userChats = signal<ChatListResponse[]>([]);
+  filteredUserChats = this._chatService.filteredUserChats;
 
   unreadCountsMap = this._messageStoreService.unreadCounts;
   messagesMap = this._messageStoreService.messagesByChat;
@@ -52,7 +51,7 @@ export class ChatsListComponent implements OnInit {
         tap((res) => {
           if (res.data) {
             // Set user chats
-            this.userChats.set(res.data);
+            this._chatService.setUserChats(res.data);
 
             res.data.forEach((c) => {
               // Set unread count

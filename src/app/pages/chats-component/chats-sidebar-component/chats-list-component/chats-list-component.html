@@ -1,12 +1,12 @@
 <ul>
-  @for (chat of userChats(); track chat.chatId) {
+  @for (chat of filteredUserChats(); track chat.chatId) {
     <li class="relative overflow-hidden transition-colors duration-200">
       <a
         [routerLink]="['/chats', chat.chatId]"
         [routerLinkActive]="['active-chat']"
         class="flex cursor-pointer items-center gap-3 p-4 transition-all duration-200 hover:bg-linear-to-r hover:from-gray-50 hover:to-transparent dark:hover:from-gray-800/50 dark:hover:to-transparent"
       >
-        <!-- Avatar with status indicator -->
+        <!-- Avatar -->
         <div class="relative shrink-0">
           @if (chat.displayPictureUrl) {
             <p-avatar
@@ -26,7 +26,7 @@
         </div>
 
         @let unreadCount = unreadCountsMap().get(chat.chatId) ?? 0;
-        <!-- Content -->
+
         <div class="min-w-0 flex-1">
           <div class="mb-1 flex items-center justify-between gap-3">
             <h3
@@ -36,11 +36,9 @@
               {{ chat.name }}
             </h3>
 
-            <div class="flex shrink-0 items-center gap-2">
-              <time class="text-xs font-medium text-gray-500 dark:text-gray-400">
-                {{ getLastMessage(chat.chatId)?.sentAt | chatDate }}
-              </time>
-            </div>
+            <time class="text-xs font-medium text-gray-500 dark:text-gray-400">
+              {{ getLastMessage(chat.chatId)?.sentAt | chatDate }}
+            </time>
           </div>
 
           <div class="flex items-center justify-between gap-3">
@@ -66,6 +64,12 @@
           </div>
         </div>
       </a>
+    </li>
+  } @empty {
+    <li class="flex flex-col items-center justify-center gap-2 py-16 text-center">
+      <i class="pi pi-comments text-4xl text-neutral-300 dark:text-neutral-600"></i>
+      <p class="text-sm text-neutral-500 dark:text-neutral-400">No chats yet</p>
+      <p class="text-xs text-neutral-400 dark:text-neutral-500">Start a new conversation now.</p>
     </li>
   }
 </ul>
