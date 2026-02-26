@@ -1,28 +1,36 @@
 <div class="border-t-2 border-neutral-200 px-8 py-4 dark:border-neutral-800">
   <div class="flex items-center justify-between gap-4">
     <!-- Wrapper -->
-    <div class="relative w-full">
-      <textarea
-        pTextarea
-        autoResize
-        rows="1"
-        placeholder="Type a message"
-        class="max-h-40 w-full rounded-lg border border-neutral-300 px-4 py-2 pr-16 focus:border-cyan-600 focus:outline-none dark:border-neutral-700 dark:focus:border-cyan-700"
-        (keydown)="onTyping()"
-        [(ngModel)]="messageContent"
-      ></textarea>
+    <div class="flex w-full flex-col gap-1">
+      <div class="relative flex w-full items-center">
+        <textarea
+          pTextarea
+          autoResize
+          rows="1"
+          placeholder="Type a message"
+          class="max-h-40 w-full rounded-lg border px-4 py-2 focus:outline-none"
+          [class.border-neutral-300]="charsRemaining() >= 0"
+          [class.dark:border-neutral-700]="charsRemaining() >= 0"
+          [class.focus:border-cyan-600]="charsRemaining() >= 0"
+          [class.dark:focus:border-cyan-700]="charsRemaining() >= 0"
+          [class.border-red-500]="charsRemaining() < 0"
+          [class.dark:border-red-700]="charsRemaining() < 0"
+          (keydown)="onTyping()"
+          [(ngModel)]="messageContent"
+        ></textarea>
+      </div>
 
       <!-- Character Counter -->
-      <span
-        class="pointer-events-none absolute right-2 bottom-2 text-xs"
-        [class]="
-          charCount() > MAX_MESSAGE_LENGTH
-            ? 'text-red-500'
-            : 'text-neutral-400 dark:text-neutral-500'
-        "
-      >
-        {{ charCount() }}/{{ MAX_MESSAGE_LENGTH }}
-      </span>
+      @if (showCharCount()) {
+        <span
+          class="self-end text-xs"
+          [class.text-red-500]="charsRemaining() < 0"
+          [class.text-neutral-400]="charsRemaining() >= 0"
+          [class.dark:text-neutral-500]="charsRemaining() >= 0"
+        >
+          {{ charsRemaining() }}
+        </span>
+      }
     </div>
 
     <p-button

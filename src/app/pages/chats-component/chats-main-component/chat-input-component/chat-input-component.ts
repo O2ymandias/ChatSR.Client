@@ -25,6 +25,8 @@ export class ChatInputComponent {
   });
 
   charCount = computed(() => this.messageContent().length);
+  charsRemaining = computed(() => this.MAX_MESSAGE_LENGTH - this.charCount());
+  showCharCount = computed(() => this.charsRemaining() < this.MAX_MESSAGE_LENGTH * 0.2);
 
   onTyping() {
     this._chatHubService.notifyTyping(this.chatId());
