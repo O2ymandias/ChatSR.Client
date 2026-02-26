@@ -50,6 +50,46 @@ export class ChatMessagesComponent {
 
   messages = computed(() => this.messagesByChatMap().get(this.chatId()) ?? []);
 
+  messagesWithSeparators = computed(() => {
+    const messages = this.messages();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    return messages.map((message, index) => {
+      const messageDate = new Date(message.sentAt);
+      messageDate.setHours(0, 0, 0, 0);
+
+      const prevMessage = messages[index - 1];
+      const prevMessageDate = prevMessage ? new Date(prevMessage.sentAt) : null;
+      if (prevMessageDate) prevMessageDate.setHours(0, 0, 0, 0);
+
+      // Show separator if it's the first message or the date is different from the previous message
+      const showDateSeparator = index === 0 || messageDate.getTime() !== prevMessageDate?.getTime();
+
+      let separatorLabel = '';
+      if (showDateSeparator) {
+        if (messageDate.getTime() === today.getTime()) {
+          separatorLabel = 'Today';
+        } else if (messageDate.getTime() === yesterday.getTime()) {
+          separatorLabel = 'Yesterday';
+        } else {
+          separatorLabel = messageDate.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            // Only show year if it's different from the current year
+            year: messageDate.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
+          });
+        }
+      }
+
+      return { message, showDateSeparator, separatorLabel };
+    });
+  });
+
   currentUserId = computed(
     () =>
       this._authService.userInfo()?.[
@@ -58,6 +98,8 @@ export class ChatMessagesComponent {
   );
 
   messagesContainer = viewChild.required<ElementRef<HTMLDivElement>>('messagesContainer');
+
+  isNearBottom = signal(true);
 
   constructor() {
     // Effect 1: Load messages when chatId or searchTerm changes
@@ -95,9 +137,7 @@ export class ChatMessagesComponent {
       if (!container) return;
 
       if (this._previousMessagesLength === 0 && currentLength > 0) {
-        setTimeout(() => {
-          container.scrollTop = container.scrollHeight;
-        });
+        this.scrollToBottom();
         this._previousMessagesLength = currentLength;
         return;
       }
@@ -107,9 +147,7 @@ export class ChatMessagesComponent {
           container.scrollHeight - container.scrollTop - container.clientHeight < 100;
 
         if (isNearBottom) {
-          setTimeout(() => {
-            container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
-          }, 50);
+          this.scrollToBottom(true);
         }
       }
 
@@ -117,8 +155,30 @@ export class ChatMessagesComponent {
     });
   }
 
+  scrollToBottom(smooth = false): void {
+    const container = this.messagesContainer()?.nativeElement;
+    if (!container) return;
+
+    setTimeout(
+      () => {
+        container.scrollTo({
+          top: container.scrollHeight,
+          behavior: smooth ? 'smooth' : 'instant',
+        });
+      },
+      smooth ? 50 : 0,
+    );
+  }
+
   onScrolledUp(): void {
     this.page.update((p) => p + 1);
+  }
+
+  onScroll(event: Event): void {
+    const container = event.target as HTMLDivElement;
+    this.isNearBottom.set(
+      container.scrollHeight - container.scrollTop - container.clientHeight < 1000,
+    );
   }
 
   private _loadMessages(chatId: string, searchTerm: string | null): void {

@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   DestroyRef,
   effect,
   inject,
@@ -7,7 +8,6 @@ import {
   OnChanges,
   OnDestroy,
   PLATFORM_ID,
-  signal,
   viewChild,
 } from '@angular/core';
 import { ChatHeaderComponent } from './chat-header-component/chat-header-component';
@@ -50,11 +50,11 @@ export class ChatsMainComponent implements OnDestroy, OnChanges {
   chatId = input.required<string>();
   chatMessagesComponent = viewChild.required<ChatMessagesComponent>('chatMessagesComponent');
 
-  showScrollButton = signal(false);
+  showScrollButton = computed(() => !this.chatMessagesComponent().isNearBottom());
 
-  // scrollToBottom(): void {
-  //   this.chatMessagesComponent().scrollToBottom(true);
-  // }
+  scrollToBottom(): void {
+    this.chatMessagesComponent().scrollToBottom(true);
+  }
 
   private _markChatAsRead(): void {
     if (!isPlatformBrowser(this._platformId)) return;
