@@ -8,6 +8,7 @@ export type MessageResponse = {
   senderId: string;
   senderDisplayName: string;
   senderPictureUrl: string | null;
+  isRead: boolean;
 };
 
 export type SendMessageRequest = {

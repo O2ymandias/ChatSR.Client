@@ -39,11 +39,11 @@ export class ChatsService {
     );
   }
 
-  markChatAsRead$(chatId: string) {
-    return this._httpClient.get<ApiResponseBase>(
-      `${environment.apiUrl}/chat/mark-as-read/${chatId}`,
-    );
-  }
+  // markChatAsRead$(chatId: string) {
+  //   return this._httpClient.get<ApiResponseBase>(
+  //     `${environment.apiUrl}/chat/mark-as-read/${chatId}`,
+  //   );
+  // }
 
   getChatMembers$(chatId: string) {
     return this._httpClient.get<ApiResponse<ChatMemberResponse[]>>(

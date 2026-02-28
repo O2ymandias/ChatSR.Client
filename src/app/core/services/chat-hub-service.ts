@@ -71,6 +71,8 @@ export class ChatHubService {
     this._onUserOnline();
     this._onUserOffline();
     this._onOnlineUsers();
+
+    this._onChatRead();
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -215,6 +217,12 @@ export class ChatHubService {
 
     this._hubConnection.on('ReceiveMessage', (message: MessageResponse) => {
       this._messageStoreService.addMessage(message);
+
+      // If the received message belongs to the currently active chat, mark it as read immediately.
+      const activeChatId = this._messageStoreService.activeChatId();
+      if (activeChatId === message.chatId) {
+        this.markChatAsRead(message.chatId);
+      }
     });
   }
 
@@ -254,7 +262,28 @@ export class ChatHubService {
         }
         return merged;
       });
-      console.log(this._onlineUsers());
+    });
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////
+  // Mark Chat as Read
+  ////////////////////////////////////////////////////////////////////////////////////////
+  async markChatAsRead(chatId: string): Promise<void> {
+    if (!this._hubConnection) return;
+
+    try {
+      await this._hubConnection.invoke('MarkChatAsRead', chatId);
+    } catch (error) {
+      console.error('Error marking chat as read:', error);
+      throw error;
+    }
+  }
+
+  private _onChatRead(): void {
+    if (!this._hubConnection) return;
+
+    this._hubConnection.on('ChatRead', (chatId: string, readerId: string, lastReadAt: string) => {
+      this._messageStoreService.markMessagesAsRead(chatId, new Date(lastReadAt));
     });
   }
 }

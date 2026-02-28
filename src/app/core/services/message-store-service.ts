@@ -113,4 +113,30 @@ export class MessageStoreService {
   clearActiveChat(): void {
     this._activeChatId.set(null);
   }
+
+  markMessagesAsRead(chatId: string, lastReadAt: Date): void {
+    // Update messages in the chat.
+    this._messagesByChat.update((map) => {
+      const messages = map.get(chatId);
+      if (!messages) return map;
+
+      const hasChanges = messages.some((m) => !m.isRead && new Date(m.sentAt) <= lastReadAt);
+      if (!hasChanges) return map;
+
+      const newMap = new Map(map);
+      newMap.set(
+        chatId,
+        messages.map((m) =>
+          !m.isRead && new Date(m.sentAt) <= lastReadAt ? { ...m, isRead: true } : m,
+        ),
+      );
+      return newMap;
+    });
+
+    // Also update the last message.
+    const lastMessage = this._lastMessagePerChat().get(chatId);
+    if (lastMessage && !lastMessage.isRead && new Date(lastMessage.sentAt) <= lastReadAt) {
+      this.setLastMessageForChat(chatId, { ...lastMessage, isRead: true });
+    }
+  }
 }

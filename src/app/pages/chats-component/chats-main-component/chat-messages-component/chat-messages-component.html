@@ -57,20 +57,16 @@
                     {{ message.sentAt | date: 'shortTime' }}
                   </span>
 
-                  <!-- Read Status -->
-                  <svg
-                    class="h-3.5 w-3.5 text-cyan-100/90"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2.5"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
+                  @if (message.isRead) {
+                    <!-- Double tick (read) -->
+                    <span class="relative inline-flex items-center">
+                      <i class="pi pi-check text-[10px] text-white"></i>
+                      <i class="pi pi-check -ml-1.5 text-[10px] text-white"></i>
+                    </span>
+                  } @else {
+                    <!-- Single tick (sent) -->
+                    <i class="pi pi-check text-[10px] text-cyan-100/90"></i>
+                  }
                 </div>
               </div>
 
