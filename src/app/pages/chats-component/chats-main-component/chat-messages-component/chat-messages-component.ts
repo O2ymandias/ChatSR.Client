@@ -101,6 +101,8 @@ export class ChatMessagesComponent {
 
   isNearBottom = signal(true);
 
+  showScrollButton = computed(() => !this.isNearBottom());
+
   constructor() {
     // Effect 1: Load messages when chatId or searchTerm changes
     effect(() => {
@@ -177,7 +179,7 @@ export class ChatMessagesComponent {
   onScroll(event: Event): void {
     const container = event.target as HTMLDivElement;
     this.isNearBottom.set(
-      container.scrollHeight - container.scrollTop - container.clientHeight < 1000,
+      container.scrollHeight - container.scrollTop - container.clientHeight < 1500,
     );
   }
 

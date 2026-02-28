@@ -1,4 +1,4 @@
-<div class="relative h-screen overflow-hidden p-4">
+<div class="h-screen overflow-hidden p-4">
   <div class="flex h-full flex-col rounded-2xl ring ring-neutral-200 dark:ring-neutral-800">
     <!-- Header -->
     <app-chat-header-component [chatId]="chatId()" />
@@ -13,14 +13,4 @@
     <!-- Input -->
     <app-chat-input-component [chatId]="chatId()" />
   </div>
-
-  <p-button
-    icon="pi pi-arrow-down"
-    rounded
-    outlined
-    severity="secondary"
-    class="scroll-btn absolute right-8 bottom-28"
-    [class.show]="showScrollButton()"
-    (click)="scrollToBottom()"
-  />
 </div>
