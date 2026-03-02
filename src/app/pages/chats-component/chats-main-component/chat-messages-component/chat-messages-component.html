@@ -39,8 +39,8 @@
 
         @if (message.senderId === currentUserId()) {
           <!-- My Message (Right-aligned) -->
-          <div class="flex justify-end gap-2">
-            <div class="group flex max-w-[85%] flex-col items-end sm:max-w-[75%] lg:max-w-[65%]">
+          <div class="flex justify-end">
+            <div class="flex max-w-[85%] flex-col items-end sm:max-w-[75%] lg:max-w-[65%]">
               <div
                 class="relative rounded-2xl rounded-tr-md bg-linear-to-br from-cyan-600 to-cyan-700 px-4 py-2.5 shadow-md transition-all hover:shadow-lg dark:from-cyan-700 dark:to-cyan-800"
               >
@@ -57,6 +57,7 @@
                     {{ message.sentAt | date: 'shortTime' }}
                   </span>
 
+                  <!-- Read Status -->
                   @if (message.isRead) {
                     <!-- Double tick (read) -->
                     <span class="relative inline-flex items-center">
@@ -69,28 +70,12 @@
                   }
                 </div>
               </div>
-
-              <!-- Hover Actions -->
-              <div class="mt-1 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                <button
-                  class="rounded-md p-1 text-slate-400 hover:bg-slate-200/50 hover:text-slate-600 dark:hover:bg-slate-800/50 dark:hover:text-slate-300"
-                >
-                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
-                    />
-                  </svg>
-                </button>
-              </div>
             </div>
           </div>
         } @else {
           <!-- Other's Message (Left-aligned) -->
-          <div class="flex justify-start gap-2">
-            <div class="group flex max-w-[85%] flex-col items-start sm:max-w-[75%] lg:max-w-[65%]">
+          <div class="flex justify-start">
+            <div class="flex max-w-[85%] flex-col items-start sm:max-w-[75%] lg:max-w-[65%]">
               <div
                 class="relative rounded-2xl rounded-tl-md bg-white px-4 py-2.5 shadow-md ring-1 ring-slate-200/60 transition-all hover:shadow-lg dark:bg-slate-800 dark:ring-slate-700/60"
               >
@@ -107,22 +92,6 @@
                 >
                   {{ message.sentAt | date: 'shortTime' }}
                 </span>
-              </div>
-
-              <!-- Hover Actions -->
-              <div class="mt-1 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                <button
-                  class="rounded-md p-1 text-slate-400 hover:bg-slate-200/50 hover:text-slate-600 dark:hover:bg-slate-800/50 dark:hover:text-slate-300"
-                >
-                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"
-                    />
-                  </svg>
-                </button>
               </div>
             </div>
           </div>

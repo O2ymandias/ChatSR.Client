@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { ChatsService } from '../../../../core/services/chats-service';
 import { isPlatformBrowser } from '@angular/common';
 import { filter, tap } from 'rxjs';
@@ -10,6 +10,7 @@ import { NavigationService } from '../../../../core/services/navigation-service'
 import { MessageStoreService } from '../../../../core/services/message-store-service';
 import { BadgeModule } from 'primeng/badge';
 import { AvatarModule } from 'primeng/avatar';
+import { AuthService } from '../../../../core/services/auth-service';
 
 @Component({
   selector: 'app-chats-list-component',
@@ -24,6 +25,7 @@ export class ChatsListComponent implements OnInit {
   private readonly _navigationService = inject(NavigationService);
   private readonly _destroyRef = inject(DestroyRef);
   private readonly _router = inject(Router);
+  private readonly _authService = inject(AuthService);
 
   serverUrl = environment.serverUrl;
 
@@ -32,6 +34,13 @@ export class ChatsListComponent implements OnInit {
   unreadCountsMap = this._messageStoreService.unreadCounts;
   messagesMap = this._messageStoreService.messagesByChat;
   lastMessageMap = this._messageStoreService.lastMessagePerChat;
+
+  currentUserId = computed(
+    () =>
+      this._authService.userInfo()?.[
+        'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'
+      ],
+  );
 
   getLastMessage(chatId: string) {
     return this.lastMessageMap().get(chatId) ?? null;

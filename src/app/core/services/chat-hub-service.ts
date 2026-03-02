@@ -282,6 +282,7 @@ export class ChatHubService {
   private _onChatRead(): void {
     if (!this._hubConnection) return;
 
+    // Listen for 'ChatRead' event from the server and mark messages as read.
     this._hubConnection.on('ChatRead', (chatId: string, readerId: string, lastReadAt: string) => {
       this._messageStoreService.markMessagesAsRead(chatId, new Date(lastReadAt));
     });

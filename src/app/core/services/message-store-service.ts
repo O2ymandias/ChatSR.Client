@@ -115,7 +115,7 @@ export class MessageStoreService {
   }
 
   markMessagesAsRead(chatId: string, lastReadAt: Date): void {
-    // Update messages in the chat.
+    // [1] Update _messagesByChat
     this._messagesByChat.update((map) => {
       const messages = map.get(chatId);
       if (!messages) return map;
@@ -127,13 +127,16 @@ export class MessageStoreService {
       newMap.set(
         chatId,
         messages.map((m) =>
+          // Only update the message if:
+          // 1. The message is not read
+          // 2. The message is sent before or at the lastReadAt
           !m.isRead && new Date(m.sentAt) <= lastReadAt ? { ...m, isRead: true } : m,
         ),
       );
       return newMap;
     });
 
-    // Also update the last message.
+    // [2] Update _lastMessagePerChat
     const lastMessage = this._lastMessagePerChat().get(chatId);
     if (lastMessage && !lastMessage.isRead && new Date(lastMessage.sentAt) <= lastReadAt) {
       this.setLastMessageForChat(chatId, { ...lastMessage, isRead: true });

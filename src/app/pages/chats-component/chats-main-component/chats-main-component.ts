@@ -20,7 +20,9 @@ export class ChatsMainComponent implements OnDestroy, OnChanges {
 
   constructor() {
     effect(() => {
-      this._messageStoreService.setActiveChat(this.chatId());
+      const chatId = this.chatId();
+
+      this._messageStoreService.setActiveChat(chatId);
       this._markChatAsRead();
     });
   }
