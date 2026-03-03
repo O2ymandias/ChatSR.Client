@@ -1,9 +1,10 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { ChatHubService } from '../../../../core/services/chat-hub-service';
 import { TextareaModule } from 'primeng/textarea';
 import { FormsModule } from '@angular/forms';
 import { MessageModule } from 'primeng/message';
+import { ChatUiStateService } from '../../../../core/services/chat-ui-state-service';
 
 @Component({
   selector: 'app-chat-input-component',
@@ -12,7 +13,17 @@ import { MessageModule } from 'primeng/message';
   styleUrl: './chat-input-component.css',
 })
 export class ChatInputComponent {
+  private readonly _chatUiState = inject(ChatUiStateService);
   private readonly _chatHubService = inject(ChatHubService);
+
+  constructor() {
+    effect(() => {
+      const isEditing = this.isEditing();
+      if (isEditing) {
+        this.messageContent.set(this.editingMessage()?.content ?? '');
+      }
+    });
+  }
 
   MAX_MESSAGE_LENGTH = 2000;
 
@@ -28,17 +39,29 @@ export class ChatInputComponent {
   charsRemaining = computed(() => this.MAX_MESSAGE_LENGTH - this.charCount());
   showCharCount = computed(() => this.charsRemaining() < this.MAX_MESSAGE_LENGTH * 0.2);
 
+  editingMessage = this._chatUiState.editingMessage;
+  isEditing = this._chatUiState.isEditing;
+
   onTyping() {
     this._chatHubService.notifyTyping(this.chatId());
   }
 
-  sendMessage() {
+  async sendMessageAsync() {
     const content = this.messageContent().trim();
     if (content.length === 0 || content.length > 2000) return;
 
-    this._chatHubService.sendMessage(this.chatId(), { content }).then(() => {
-      this.messageContent.set('');
-      this._chatHubService.stopTyping(this.chatId());
-    });
+    // Send message
+    await this._chatHubService.sendMessage(this.chatId(), { content });
+    this.messageContent.set('');
+    this._chatHubService.stopTyping(this.chatId());
+  }
+
+  confirmEdit() {
+    const content = this.messageContent().trim();
+    if (content.length === 0 || content.length > 2000) return;
+  }
+  cancelEdit() {
+    this._chatUiState.stopEditing();
+    this.messageContent.set('');
   }
 }

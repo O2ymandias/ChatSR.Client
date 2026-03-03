@@ -115,12 +115,11 @@
   />
 </div>
 
-<p-context-menu #contextMenu [model]="items">
+<p-context-menu #contextMenu [model]="items()" (onHide)="onHideContextMenu()">
   <ng-template #item let-item>
     @if (!item.separator) {
-      <a
-        pRipple
-        class="flex cursor-pointer items-center gap-4 px-4 py-2.5 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700/50"
+      <div
+        class="flex cursor-pointer items-center gap-4 px-4 py-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700/50"
       >
         @let isRemove = item.id === 'remove';
 
@@ -144,7 +143,7 @@
         >
           {{ item.label }}
         </span>
-      </a>
+      </div>
     }
   </ng-template>
 </p-context-menu>

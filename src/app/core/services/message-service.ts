@@ -32,4 +32,9 @@ export class MessageService {
     const url = `${environment.apiUrl}/message/${chatId}`;
     return this._httpClient.post<MessageResponse>(url, { content });
   }
+
+  editMessage$(messageId: string, newContent: string) {
+    const url = `${environment.apiUrl}/message/${messageId}`;
+    return this._httpClient.put<MessageResponse>(url, { newContent });
+  }
 }

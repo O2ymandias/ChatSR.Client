@@ -40,6 +40,12 @@ export class ChatMessagesComponent {
   private readonly _platformId = inject(PLATFORM_ID);
   private readonly _destroyRef = inject(DestroyRef);
 
+  private readonly _baseItems: MenuItem[] = [
+    { id: 'reply', label: 'Reply', icon: 'pi pi-reply' },
+    { id: 'copy', label: 'Copy', icon: 'pi pi-copy' },
+    { id: 'forward', label: 'Forward', icon: 'pi pi-share-alt' },
+  ];
+
   private _previousMessagesLength = 0;
 
   readonly defaultPage = this._messageService.DEFAULT_PAGE;
@@ -187,6 +193,71 @@ export class ChatMessagesComponent {
     );
   }
 
+  ////////////////////////////////////////////////////////////////////////////
+  // Context menu
+  ////////////////////////////////////////////////////////////////////////////
+
+  contextMenu = viewChild.required<ContextMenu>('contextMenu');
+  selectedMessage = signal<MessageResponse | null>(null);
+  selectedMessageType = signal<MessageType | null>(null);
+  isAdmin = signal(false);
+  items = computed<MenuItem[]>(() => {
+    const isOutgoing = this.selectedMessageType() === 'outgoing';
+    const canDelete = isOutgoing || this.isAdmin();
+
+    return [
+      ...this._baseItems,
+
+      ...(isOutgoing
+        ? [
+            {
+              id: 'edit',
+              label: 'Edit',
+              icon: 'pi pi-pencil',
+              command: () => {
+                const message = this.selectedMessage();
+                if (message) this._chatUiState.startEditing(message);
+              },
+            },
+          ]
+        : []),
+
+      ...(canDelete
+        ? [
+            { separator: true },
+            {
+              id: 'remove',
+              label: 'Delete',
+              icon: 'pi pi-trash',
+              command: () => {
+                console.log('DELETE');
+              },
+            },
+          ]
+        : []),
+    ];
+  });
+
+  onContextMenu(event: PointerEvent, message: MessageResponse, messageType: MessageType): void {
+    event.preventDefault();
+    this.selectedMessage.set(message);
+    this.selectedMessageType.set(messageType);
+    this.contextMenu().target = event.target as HTMLElement;
+    this.contextMenu().show(event);
+  }
+  onHideContextMenu(): void {
+    this.selectedMessage.set(null);
+    this.selectedMessageType.set(null);
+  }
+
+  onClick() {
+    console.log('Clicked');
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  // Private methods
+  ////////////////////////////////////////////////////////////////////////////
+
   private _loadMessages(chatId: string, searchTerm: string | null): void {
     if (!isPlatformBrowser(this._platformId)) return;
 
@@ -230,42 +301,5 @@ export class ChatMessagesComponent {
         takeUntilDestroyed(this._destroyRef),
       )
       .subscribe();
-  }
-
-  contextMenu = viewChild.required<ContextMenu>('contextMenu');
-  selectedMessage = signal<MessageResponse | null>(null);
-  selectedMessageType = signal<MessageType | null>(null);
-
-  onContextMenu(event: PointerEvent, message: MessageResponse, messageType: MessageType): void {
-    event.preventDefault();
-    this.selectedMessage.set(message);
-    this.selectedMessageType.set(messageType);
-    this.contextMenu().target = event.target as HTMLElement;
-    this.contextMenu().show(event);
-  }
-
-  isAdmin = signal(false);
-
-  private readonly _baseItems: MenuItem[] = [
-    { id: 'reply', label: 'Reply', icon: 'pi pi-reply' },
-    { id: 'copy', label: 'Copy', icon: 'pi pi-copy' },
-    { id: 'forward', label: 'Forward', icon: 'pi pi-share-alt' },
-  ];
-
-  get items(): MenuItem[] {
-    const isOutgoing = this.selectedMessageType() === 'outgoing';
-    const canDelete = isOutgoing || this.isAdmin();
-
-    return [
-      ...this._baseItems,
-
-      // Show Edit option only if Message is Outgoing
-      ...(isOutgoing ? [{ id: 'edit', label: 'Edit', icon: 'pi pi-pencil' }] : []),
-
-      // Show Separator & Delete option only if Can Delete
-      ...(canDelete
-        ? [{ separator: true }, { id: 'remove', label: 'Delete', icon: 'pi pi-trash' }]
-        : []),
-    ];
   }
 }

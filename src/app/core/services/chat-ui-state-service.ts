@@ -1,9 +1,14 @@
-import { Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
+import { MessageResponse } from '../../shared/models/message.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ChatUiStateService {
+  ////////////////////////////////////////////////////////////////////////////////////
+  // Search state
+  ////////////////////////////////////////////////////////////////////////////////////
+
   private _searchTerm = signal<string>('');
   private _searchVisible = signal<boolean>(false);
 
@@ -24,5 +29,22 @@ export class ChatUiStateService {
 
   hideSearch(): void {
     this._searchVisible.set(false);
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////
+  // Edit state
+  ////////////////////////////////////////////////////////////////////////////////////
+
+  private _editingMessage = signal<MessageResponse | null>(null);
+
+  editingMessage = this._editingMessage.asReadonly();
+  isEditing = computed(() => this._editingMessage() !== null);
+
+  startEditing(message: MessageResponse): void {
+    this._editingMessage.set(message);
+  }
+
+  stopEditing(): void {
+    this._editingMessage.set(null);
   }
 }
