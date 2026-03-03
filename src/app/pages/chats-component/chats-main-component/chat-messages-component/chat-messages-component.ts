@@ -21,10 +21,14 @@ import { ButtonModule } from 'primeng/button';
 import { InfiniteScrollDirective } from 'ngx-infinite-scroll';
 import { QueryParams } from '../../../../shared/models/shared.model';
 import { ChatUiStateService } from '../../../../core/services/chat-ui-state-service';
+import { MessageResponse, MessageType } from '../../../../shared/models/message.model';
+import { ContextMenu } from 'primeng/contextmenu';
+import { MenuItem } from 'primeng/api';
+import { RippleModule } from 'primeng/ripple';
 
 @Component({
   selector: 'app-chat-messages-component',
-  imports: [DatePipe, ButtonModule, InfiniteScrollDirective],
+  imports: [DatePipe, ButtonModule, InfiniteScrollDirective, ContextMenu, RippleModule],
   templateUrl: './chat-messages-component.html',
   styleUrl: './chat-messages-component.css',
 })
@@ -226,5 +230,42 @@ export class ChatMessagesComponent {
         takeUntilDestroyed(this._destroyRef),
       )
       .subscribe();
+  }
+
+  contextMenu = viewChild.required<ContextMenu>('contextMenu');
+  selectedMessage = signal<MessageResponse | null>(null);
+  selectedMessageType = signal<MessageType | null>(null);
+
+  onContextMenu(event: PointerEvent, message: MessageResponse, messageType: MessageType): void {
+    event.preventDefault();
+    this.selectedMessage.set(message);
+    this.selectedMessageType.set(messageType);
+    this.contextMenu().target = event.target as HTMLElement;
+    this.contextMenu().show(event);
+  }
+
+  isAdmin = signal(false);
+
+  private readonly _baseItems: MenuItem[] = [
+    { id: 'reply', label: 'Reply', icon: 'pi pi-reply' },
+    { id: 'copy', label: 'Copy', icon: 'pi pi-copy' },
+    { id: 'forward', label: 'Forward', icon: 'pi pi-share-alt' },
+  ];
+
+  get items(): MenuItem[] {
+    const isOutgoing = this.selectedMessageType() === 'outgoing';
+    const canDelete = isOutgoing || this.isAdmin();
+
+    return [
+      ...this._baseItems,
+
+      // Show Edit option only if Message is Outgoing
+      ...(isOutgoing ? [{ id: 'edit', label: 'Edit', icon: 'pi pi-pencil' }] : []),
+
+      // Show Separator & Delete option only if Can Delete
+      ...(canDelete
+        ? [{ separator: true }, { id: 'remove', label: 'Delete', icon: 'pi pi-trash' }]
+        : []),
+    ];
   }
 }

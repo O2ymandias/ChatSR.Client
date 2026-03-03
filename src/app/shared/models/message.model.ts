@@ -11,6 +11,11 @@ export type MessageResponse = {
   isRead: boolean;
 };
 
+export type MessageType = 'incoming' | 'outgoing';
+export type ContextMenuMessage = MessageResponse & {
+  messageType: MessageType;
+};
+
 export type SendMessageRequest = {
   content: string;
 };

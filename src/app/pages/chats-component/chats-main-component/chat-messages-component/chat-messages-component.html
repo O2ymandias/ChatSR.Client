@@ -38,9 +38,12 @@
         }
 
         @if (message.senderId === currentUserId()) {
-          <!-- My Message (Right-aligned) -->
+          <!-- Outgoing Message  -->
           <div class="flex justify-end">
-            <div class="flex max-w-[85%] flex-col items-end sm:max-w-[75%] lg:max-w-[65%]">
+            <div
+              class="flex max-w-[85%] flex-col items-end sm:max-w-[75%] lg:max-w-[65%]"
+              (contextmenu)="onContextMenu($event, message, 'outgoing')"
+            >
               <div
                 class="relative rounded-2xl rounded-tr-md bg-linear-to-br from-cyan-600 to-cyan-700 px-4 py-2.5 shadow-md transition-all hover:shadow-lg dark:from-cyan-700 dark:to-cyan-800"
               >
@@ -73,9 +76,12 @@
             </div>
           </div>
         } @else {
-          <!-- Other's Message (Left-aligned) -->
+          <!-- Incoming Message -->
           <div class="flex justify-start">
-            <div class="flex max-w-[85%] flex-col items-start sm:max-w-[75%] lg:max-w-[65%]">
+            <div
+              class="flex max-w-[85%] flex-col items-start sm:max-w-[75%] lg:max-w-[65%]"
+              (contextmenu)="onContextMenu($event, message, 'incoming')"
+            >
               <div
                 class="relative rounded-2xl rounded-tl-md bg-white px-4 py-2.5 shadow-md ring-1 ring-slate-200/60 transition-all hover:shadow-lg dark:bg-slate-800 dark:ring-slate-700/60"
               >
@@ -108,3 +114,37 @@
     (click)="scrollToBottom(true)"
   />
 </div>
+
+<p-context-menu #contextMenu [model]="items">
+  <ng-template #item let-item>
+    @if (!item.separator) {
+      <a
+        pRipple
+        class="flex cursor-pointer items-center gap-4 px-4 py-2.5 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700/50"
+      >
+        @let isRemove = item.id === 'remove';
+
+        <!-- Icon -->
+        <i
+          class="text-sm"
+          [class]="item.icon"
+          [class.text-red-500]="isRemove"
+          [class.dark:text-red-400]="isRemove"
+          [class.text-slate-400]="!isRemove"
+          [class.dark:text-slate-500]="!isRemove"
+        ></i>
+
+        <!-- Label -->
+        <span
+          class="text-sm font-medium"
+          [class.text-red-500]="isRemove"
+          [class.dark:text-red-400]="isRemove"
+          [class.text-slate-700]="!isRemove"
+          [class.dark:text-slate-200]="!isRemove"
+        >
+          {{ item.label }}
+        </span>
+      </a>
+    }
+  </ng-template>
+</p-context-menu>
