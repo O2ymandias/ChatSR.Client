@@ -9,3 +9,7 @@
 .active-chat {
   @apply bg-gray-200/50 dark:bg-gray-800/50;
 }
+
+.font-cairo {
+  font-family: 'Cairo', sans-serif;
+}

@@ -50,15 +50,24 @@ export class ChatInputComponent {
     const content = this.messageContent().trim();
     if (content.length === 0 || content.length > 2000) return;
 
-    // Send message
     await this._chatHubService.sendMessage(this.chatId(), { content });
+
     this.messageContent.set('');
     this._chatHubService.stopTyping(this.chatId());
   }
 
-  confirmEdit() {
-    const content = this.messageContent().trim();
-    if (content.length === 0 || content.length > 2000) return;
+  async confirmEdit() {
+    const editingMessage = this.editingMessage();
+    if (!editingMessage) return;
+
+    const newContent = this.messageContent().trim();
+    if (newContent.length === 0 || newContent.length > 2000) return;
+
+    await this._chatHubService.editMessage(editingMessage.messageId, { newContent });
+
+    this._chatUiState.stopEditing();
+    this.messageContent.set('');
+    this._chatHubService.stopTyping(this.chatId());
   }
   cancelEdit() {
     this._chatUiState.stopEditing();

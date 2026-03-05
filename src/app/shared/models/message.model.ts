@@ -19,3 +19,7 @@ export type ContextMenuMessage = MessageResponse & {
 export type SendMessageRequest = {
   content: string;
 };
+
+export type EditMessageRequest = {
+  newContent: string;
+};

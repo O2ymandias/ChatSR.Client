@@ -54,6 +54,13 @@
 
                 <!-- Timestamp -->
                 <div class="mt-1.5 flex items-center justify-end gap-1.5">
+                  @if (message.isEdited) {
+                    <span
+                      class="text-[11px] font-medium text-cyan-100/70 select-none dark:text-cyan-200/60"
+                    >
+                      edited
+                    </span>
+                  }
                   <span
                     class="text-[11px] font-medium text-cyan-100/90 select-none dark:text-cyan-200/80"
                   >
@@ -93,11 +100,20 @@
                 </p>
 
                 <!-- Timestamp -->
-                <span
-                  class="mt-1.5 block text-[11px] font-medium text-slate-500 select-none dark:text-slate-400"
-                >
-                  {{ message.sentAt | date: 'shortTime' }}
-                </span>
+                <div class="mt-1.5 flex items-center gap-1.5">
+                  @if (message.isEdited) {
+                    <span
+                      class="text-[11px] font-medium text-slate-400 select-none dark:text-slate-500"
+                    >
+                      edited
+                    </span>
+                  }
+                  <span
+                    class="text-[11px] font-medium text-slate-500 select-none dark:text-slate-400"
+                  >
+                    {{ message.sentAt | date: 'shortTime' }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

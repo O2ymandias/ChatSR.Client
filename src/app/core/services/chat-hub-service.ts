@@ -2,7 +2,11 @@ import { TypingUser } from './../../shared/models/chat-hub.model';
 import { inject, Injectable, signal } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { environment } from '../../environment';
-import { MessageResponse, SendMessageRequest } from '../../shared/models/message.model';
+import {
+  EditMessageRequest,
+  MessageResponse,
+  SendMessageRequest,
+} from '../../shared/models/message.model';
 import { MessageStoreService } from './message-store-service';
 
 @Injectable({
@@ -67,6 +71,7 @@ export class ChatHubService {
     this._onUserStoppedTyping();
 
     this._onReceiveMessage();
+    this._onMessageEdited();
 
     this._onUserOnline();
     this._onUserOffline();
@@ -223,6 +228,25 @@ export class ChatHubService {
       if (activeChatId === message.chatId) {
         this.markChatAsRead(message.chatId);
       }
+    });
+  }
+
+  async editMessage(messageId: string, request: EditMessageRequest): Promise<void> {
+    if (!this._hubConnection) return;
+
+    try {
+      await this._hubConnection.invoke('EditMessage', messageId, request);
+    } catch (error) {
+      console.error('Error editing message:', error);
+      throw error;
+    }
+  }
+
+  private _onMessageEdited(): void {
+    if (!this._hubConnection) return;
+
+    this._hubConnection.on('MessageEdited', (message: MessageResponse) => {
+      this._messageStoreService.updateMessage(message);
     });
   }
 

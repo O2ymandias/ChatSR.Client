@@ -88,6 +88,32 @@ export class MessageStoreService {
     }
   }
 
+  // Update message
+  updateMessage(message: MessageResponse): void {
+    // [1] Update _messagesByChat
+    this._messagesByChat.update((map) => {
+      const messages = map.get(message.chatId);
+      if (!messages) return map;
+
+      const index = messages.findIndex((m) => m.messageId === message.messageId);
+      if (index === -1) return map;
+
+      const updatedMessages = [...messages];
+      updatedMessages[index] = message;
+
+      const newMap = new Map(map);
+      newMap.set(message.chatId, updatedMessages);
+
+      return newMap;
+    });
+
+    // [2] Update _lastMessagePerChat if the edited message is the last one
+    const lastMessage = this._lastMessagePerChat().get(message.chatId);
+    if (lastMessage?.messageId === message.messageId) {
+      this.setLastMessageForChat(message.chatId, message);
+    }
+  }
+
   // Set last message for a specific chat
   setLastMessageForChat(chatId: string, message: MessageResponse): void {
     this._lastMessagePerChat.update((map) => {
