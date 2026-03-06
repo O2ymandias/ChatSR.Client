@@ -1,5 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { MessageResponse } from '../../shared/models/message.model';
+import { LastMessageOverview } from '../../shared/models/chats.model';
 
 @Injectable({
   providedIn: 'root',
@@ -7,7 +8,7 @@ import { MessageResponse } from '../../shared/models/message.model';
 export class MessageStoreService {
   private _messagesByChat = signal<Map<string, MessageResponse[]>>(new Map());
   private _unreadCounts = signal<Map<string, number>>(new Map());
-  private _lastMessagePerChat = signal<Map<string, MessageResponse>>(new Map());
+  private _lastMessagePerChat = signal<Map<string, LastMessageOverview>>(new Map());
   private _activeChatId = signal<string | null>(null);
 
   messagesByChat = this._messagesByChat.asReadonly();
@@ -115,7 +116,7 @@ export class MessageStoreService {
   }
 
   // Set last message for a specific chat
-  setLastMessageForChat(chatId: string, message: MessageResponse): void {
+  setLastMessageForChat(chatId: string, message: LastMessageOverview): void {
     this._lastMessagePerChat.update((map) => {
       const newMap = new Map(map);
       newMap.set(chatId, message);

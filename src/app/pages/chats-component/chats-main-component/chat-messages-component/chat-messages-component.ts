@@ -205,6 +205,9 @@ export class ChatMessagesComponent {
     const isOutgoing = this.selectedMessageType() === 'outgoing';
     const canDelete = isOutgoing || this.isAdmin();
 
+    const message = this.selectedMessage();
+    if (!message) return this._baseItems;
+
     return [
       ...this._baseItems,
 
@@ -215,7 +218,6 @@ export class ChatMessagesComponent {
               label: 'Edit',
               icon: 'pi pi-pencil',
               command: () => {
-                const message = this.selectedMessage();
                 if (message) this._chatUiState.startEditing(message);
               },
             },
@@ -224,7 +226,6 @@ export class ChatMessagesComponent {
 
       ...(canDelete
         ? [
-            { separator: true },
             {
               id: 'remove',
               label: 'Delete',
@@ -232,6 +233,15 @@ export class ChatMessagesComponent {
               command: () => {
                 console.log('DELETE');
               },
+            },
+          ]
+        : []),
+
+      ...(message.isEdited && message.editedAt
+        ? [
+            { separator: true },
+            {
+              id: 'info',
             },
           ]
         : []),

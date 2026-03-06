@@ -9,6 +9,13 @@ export type MessageResponse = {
   senderDisplayName: string;
   senderPictureUrl: string | null;
   isRead: boolean;
+  replyTo: ReplyToOverview | null;
+};
+
+export type ReplyToOverview = {
+  messageId: string;
+  content: string;
+  senderDisplayName: string;
 };
 
 export type MessageType = 'incoming' | 'outgoing';

@@ -1,5 +1,3 @@
-import { MessageResponse } from './message.model';
-
 export type ChatResponse = {
   chatId: string;
   name: string | null;
@@ -14,9 +12,18 @@ export type ChatListResponse = {
   isGroup: boolean;
   createdAt: string;
   memberCount: number;
-  lastMessage: MessageResponse | null;
+  lastMessageOverview: LastMessageOverview | null;
   displayPictureUrl: string | null;
   unreadCount: number;
+};
+
+export type LastMessageOverview = {
+  messageId: string;
+  senderId: string;
+  content: string;
+  senderDisplayName: string;
+  sentAt: string;
+  isRead: boolean;
 };
 
 export type ChatMemberResponse = {

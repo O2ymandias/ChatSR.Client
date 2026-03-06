@@ -67,8 +67,8 @@ export class ChatsListComponent implements OnInit {
               this._messageStoreService.setUnreadCountForChat(c.chatId, c.unreadCount);
 
               // Set last message
-              if (c.lastMessage)
-                this._messageStoreService.setLastMessageForChat(c.chatId, c.lastMessage);
+              if (c.lastMessageOverview)
+                this._messageStoreService.setLastMessageForChat(c.chatId, c.lastMessageOverview);
             });
           }
         }),
