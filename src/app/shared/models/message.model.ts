@@ -9,7 +9,7 @@ export type MessageResponse = {
   senderDisplayName: string;
   senderPictureUrl: string | null;
   isRead: boolean;
-  replyTo: ReplyToOverview | null;
+  replyToOverview: ReplyToOverview | null;
 };
 
 export type ReplyToOverview = {
@@ -25,6 +25,7 @@ export type ContextMenuMessage = MessageResponse & {
 
 export type SendMessageRequest = {
   content: string;
+  replyToMessageId?: string;
 };
 
 export type EditMessageRequest = {

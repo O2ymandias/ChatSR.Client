@@ -5,6 +5,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { FormsModule } from '@angular/forms';
 import { MessageModule } from 'primeng/message';
 import { ChatUiStateService } from '../../../../core/services/chat-ui-state-service';
+import { SendMessageRequest } from '../../../../shared/models/message.model';
 
 @Component({
   selector: 'app-chat-input-component',
@@ -42,6 +43,9 @@ export class ChatInputComponent {
   editingMessage = this._chatUiState.editingMessage;
   isEditing = this._chatUiState.isEditing;
 
+  replyToMessage = this._chatUiState.replyToMessage;
+  isReplying = this._chatUiState.isReplying;
+
   onTyping() {
     this._chatHubService.notifyTyping(this.chatId());
   }
@@ -71,6 +75,30 @@ export class ChatInputComponent {
   }
   cancelEdit() {
     this._chatUiState.stopEditing();
+    this.messageContent.set('');
+  }
+
+  async confirmReply() {
+    const replyingMessage = this.replyToMessage();
+    if (!replyingMessage) return;
+
+    const newContent = this.messageContent().trim();
+    if (newContent.length === 0 || newContent.length > 2000) return;
+
+    const request: SendMessageRequest = {
+      content: newContent,
+      replyToMessageId: replyingMessage.messageId,
+    };
+
+    await this._chatHubService.sendMessage(this.chatId(), request);
+
+    this._chatUiState.stopReplying();
+    this.messageContent.set('');
+    this._chatHubService.stopTyping(this.chatId());
+  }
+
+  cancelReply() {
+    this._chatUiState.stopReplying();
     this.messageContent.set('');
   }
 }

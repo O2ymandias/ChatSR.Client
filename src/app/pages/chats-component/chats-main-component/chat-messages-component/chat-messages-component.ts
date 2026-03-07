@@ -40,12 +40,6 @@ export class ChatMessagesComponent {
   private readonly _platformId = inject(PLATFORM_ID);
   private readonly _destroyRef = inject(DestroyRef);
 
-  private readonly _baseItems: MenuItem[] = [
-    { id: 'reply', label: 'Reply', icon: 'pi pi-reply' },
-    { id: 'copy', label: 'Copy', icon: 'pi pi-copy' },
-    { id: 'forward', label: 'Forward', icon: 'pi pi-share-alt' },
-  ];
-
   private _previousMessagesLength = 0;
 
   readonly defaultPage = this._messageService.DEFAULT_PAGE;
@@ -193,6 +187,36 @@ export class ChatMessagesComponent {
     );
   }
 
+  scrollToMessage(messageId: string, behavior: ScrollBehavior = 'smooth'): void {
+    const container = this.messagesContainer().nativeElement as HTMLElement;
+
+    const target = container.querySelector(`[data-message-id="${messageId}"]`) as HTMLElement;
+
+    if (!target) return;
+
+    const containerTop = container.getBoundingClientRect().top;
+    const targetTop = target.getBoundingClientRect().top;
+    const offset =
+      targetTop -
+      containerTop +
+      container.scrollTop -
+      container.clientHeight / 2 +
+      target.offsetHeight / 2;
+
+    container.scrollTo({ top: offset, behavior });
+
+    // Highlight effect
+    target.classList.add(
+      'bg-cyan-100',
+      'dark:bg-cyan-900/30',
+      'transition-colors',
+      'duration-1000',
+    );
+    setTimeout(() => {
+      target.classList.remove('bg-cyan-100', 'dark:bg-cyan-900/30');
+    }, 2000);
+  }
+
   ////////////////////////////////////////////////////////////////////////////
   // Context menu
   ////////////////////////////////////////////////////////////////////////////
@@ -205,11 +229,21 @@ export class ChatMessagesComponent {
     const isOutgoing = this.selectedMessageType() === 'outgoing';
     const canDelete = isOutgoing || this.isAdmin();
 
-    const message = this.selectedMessage();
-    if (!message) return this._baseItems;
+    const selectedMessage = this.selectedMessage();
+
+    if (!selectedMessage) return [];
 
     return [
-      ...this._baseItems,
+      {
+        id: 'reply',
+        label: 'Reply',
+        icon: 'pi pi-reply',
+        command: () => {
+          this._chatUiState.startReplying(selectedMessage);
+        },
+      },
+      { id: 'copy', label: 'Copy', icon: 'pi pi-copy' },
+      { id: 'forward', label: 'Forward', icon: 'pi pi-share-alt' },
 
       ...(isOutgoing
         ? [
@@ -218,7 +252,7 @@ export class ChatMessagesComponent {
               label: 'Edit',
               icon: 'pi pi-pencil',
               command: () => {
-                if (message) this._chatUiState.startEditing(message);
+                if (selectedMessage) this._chatUiState.startEditing(selectedMessage);
               },
             },
           ]
@@ -237,7 +271,7 @@ export class ChatMessagesComponent {
           ]
         : []),
 
-      ...(message.isEdited && message.editedAt
+      ...(selectedMessage.isEdited && selectedMessage.editedAt
         ? [
             { separator: true },
             {
@@ -258,10 +292,6 @@ export class ChatMessagesComponent {
   onHideContextMenu(): void {
     this.selectedMessage.set(null);
     this.selectedMessageType.set(null);
-  }
-
-  onClick() {
-    console.log('Clicked');
   }
 
   ////////////////////////////////////////////////////////////////////////////
