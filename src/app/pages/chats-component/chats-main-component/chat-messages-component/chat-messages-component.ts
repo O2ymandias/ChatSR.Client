@@ -41,6 +41,8 @@ export class ChatMessagesComponent {
 
   private _previousMessagesLength = 0;
 
+  private readonly _jumpingToMessage = signal(false);
+
   readonly defaultPage = this._messageService.DEFAULT_PAGE;
   readonly defaultPageSize = this._messageService.DEFAULT_PAGE_SIZE;
 
@@ -53,7 +55,12 @@ export class ChatMessagesComponent {
 
   messagesByChatMap = this._messageStoreService.messagesByChat;
 
-  messages = computed(() => this.messagesByChatMap().get(this.chatId()) ?? []);
+  messages = computed(
+    () =>
+      this.messagesByChatMap()
+        .get(this.chatId())
+        ?.sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()) ?? [],
+  );
 
   messagesWithSeparators = computed(() => {
     const messages = this.messages();
@@ -113,8 +120,8 @@ export class ChatMessagesComponent {
 
       this.page.set(this.defaultPage);
       this.bottomPage.set(this.defaultPage);
-      this.loadedAllHistory.set(false);
       this.loadedAllFuture.set(true);
+      this.loadedAllHistory.set(false);
       this._previousMessagesLength = 0;
 
       this._loadMessages(chatId, searchTerm);
@@ -127,6 +134,11 @@ export class ChatMessagesComponent {
 
       const container = this.messagesContainer()?.nativeElement;
       if (!container) return;
+
+      if (this._jumpingToMessage()) {
+        this._previousMessagesLength = currentLength;
+        return;
+      }
 
       // Case 1: Initial load -> scroll to bottom instantly.
       if (this._previousMessagesLength === 0 && currentLength > 0) {
@@ -165,6 +177,40 @@ export class ChatMessagesComponent {
     );
   }
 
+  scrollToLatest(): void {
+    // If we already have all future messages loaded, just scroll down
+    if (this.loadedAllFuture()) {
+      this.scrollToBottom('smooth');
+      return;
+    }
+
+    // Otherwise, reset and fetch the first (latest) page fresh
+    this.page.set(this.defaultPage);
+    this.bottomPage.set(this.defaultPage);
+    this.loadedAllFuture.set(true);
+    this.loadedAllHistory.set(false);
+    this._previousMessagesLength = 0;
+
+    this._messageService
+      .getChatMessages$(this.chatId(), {
+        page: this.defaultPage,
+        pageSize: this.defaultPageSize,
+        searchTerm: this._chatUiState.searchTerm(),
+      })
+      .pipe(
+        tap((res) => {
+          if (!res.isSuccess) return;
+          this._messageStoreService.setMessagesForChat(this.chatId(), res.items);
+
+          if (!res.pagination.hasNext) {
+            this.loadedAllHistory.set(true);
+          }
+        }),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe();
+  }
+
   onScrolledUp(): void {
     if (this.loadedAllHistory()) return;
 
@@ -201,12 +247,14 @@ export class ChatMessagesComponent {
     );
   }
 
-  scrollToMessage(messageId: string, behavior: ScrollBehavior = 'smooth'): void {
+  scrollToMessage(messageId: string): void {
     const alreadyLoaded = this.messages().some((m) => m.messageId === messageId);
     if (alreadyLoaded) {
-      setTimeout(() => this._scrollToMessage(messageId, behavior));
+      setTimeout(() => this._scrollToMessage(messageId, 'instant'));
       return;
     }
+
+    this._jumpingToMessage.set(true);
 
     this._messageService
       .getMessagePage$(this.chatId(), messageId)
@@ -229,7 +277,10 @@ export class ChatMessagesComponent {
           if (!res.isSuccess) return;
 
           this._messageStoreService.setMessagesForChat(this.chatId(), res.items);
-          setTimeout(() => this._scrollToMessage(messageId, behavior));
+          setTimeout(() => {
+            this._scrollToMessage(messageId, 'instant');
+            this._jumpingToMessage.set(false);
+          });
         }),
         takeUntilDestroyed(this._destroyRef),
       )
