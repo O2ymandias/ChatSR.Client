@@ -8,13 +8,12 @@ import {
   input,
   PLATFORM_ID,
   signal,
-  untracked,
   viewChild,
 } from '@angular/core';
 import { AuthService } from '../../../../core/services/auth-service';
 import { DatePipe, isPlatformBrowser } from '@angular/common';
 import { MessageService } from '../../../../core/services/message-service';
-import { tap } from 'rxjs';
+import { EMPTY, switchMap, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MessageStoreService } from '../../../../core/services/message-store-service';
 import { ButtonModule } from 'primeng/button';
@@ -48,7 +47,9 @@ export class ChatMessagesComponent {
   chatId = input.required<string>();
 
   page = signal(this.defaultPage);
+  bottomPage = signal(this.defaultPage);
   loadedAllHistory = signal(false);
+  loadedAllFuture = signal(true);
 
   messagesByChatMap = this._messageStoreService.messagesByChat;
 
@@ -71,7 +72,6 @@ export class ChatMessagesComponent {
       const prevMessageDate = prevMessage ? new Date(prevMessage.sentAt) : null;
       if (prevMessageDate) prevMessageDate.setHours(0, 0, 0, 0);
 
-      // Show separator if it's the first message or the date is different from the previous message
       const showDateSeparator = index === 0 || messageDate.getTime() !== prevMessageDate?.getTime();
 
       let separatorLabel = '';
@@ -84,7 +84,6 @@ export class ChatMessagesComponent {
           separatorLabel = messageDate.toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
-            // Only show year if it's different from the current year
             year: messageDate.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
           });
         }
@@ -104,7 +103,6 @@ export class ChatMessagesComponent {
   messagesContainer = viewChild.required<ElementRef<HTMLDivElement>>('messagesContainer');
 
   isNearBottom = signal(true);
-
   showScrollButton = computed(() => !this.isNearBottom());
 
   constructor() {
@@ -114,46 +112,37 @@ export class ChatMessagesComponent {
       const searchTerm = this._chatUiState.searchTerm();
 
       this.page.set(this.defaultPage);
+      this.bottomPage.set(this.defaultPage);
       this.loadedAllHistory.set(false);
+      this.loadedAllFuture.set(true);
       this._previousMessagesLength = 0;
 
-      this._loadMessages(chatId, searchTerm || null);
+      this._loadMessages(chatId, searchTerm);
     });
 
-    // Effect 2: Pagination
-    effect(() => {
-      const page = this.page();
-      const chatId = untracked(() => this.chatId());
-      const searchTerm = untracked(() => this._chatUiState.searchTerm());
-
-      if (page > 1) {
-        this._loadMoreMessages(chatId, {
-          page,
-          pageSize: this.defaultPageSize,
-          searchTerm: searchTerm || null,
-        });
-      }
-    });
-
-    // Effect 3: Scroll handling
+    // Effect 2: Scroll handling
     effect(() => {
       const messages = this.messages();
       const currentLength = messages.length;
+
       const container = this.messagesContainer()?.nativeElement;
       if (!container) return;
 
+      // Case 1: Initial load -> scroll to bottom instantly.
       if (this._previousMessagesLength === 0 && currentLength > 0) {
-        this.scrollToBottom();
+        this.scrollToBottom('instant');
         this._previousMessagesLength = currentLength;
         return;
       }
 
+      // Case 2: New message arrived or pagination -> scroll to bottom only if near bottom.
       if (currentLength > this._previousMessagesLength) {
         const isNearBottom =
           container.scrollHeight - container.scrollTop - container.clientHeight < 100;
 
+        // To avoid scrolling to bottom when scrolling up
         if (isNearBottom) {
-          this.scrollToBottom(true);
+          this.scrollToBottom('smooth');
         }
       }
 
@@ -161,7 +150,7 @@ export class ChatMessagesComponent {
     });
   }
 
-  scrollToBottom(smooth = false): void {
+  scrollToBottom(behavior: ScrollBehavior): void {
     const container = this.messagesContainer()?.nativeElement;
     if (!container) return;
 
@@ -169,15 +158,40 @@ export class ChatMessagesComponent {
       () => {
         container.scrollTo({
           top: container.scrollHeight,
-          behavior: smooth ? 'smooth' : 'instant',
+          behavior: behavior,
         });
       },
-      smooth ? 50 : 0,
+      behavior === 'smooth' ? 50 : 0,
     );
   }
 
   onScrolledUp(): void {
+    if (this.loadedAllHistory()) return;
+
     this.page.update((p) => p + 1);
+
+    this._loadMoreMessages(this.chatId(), {
+      page: this.page(),
+      pageSize: this.defaultPageSize,
+      searchTerm: this._chatUiState.searchTerm(),
+    });
+  }
+
+  onScrolledDown(): void {
+    if (this.loadedAllFuture()) return;
+
+    this.bottomPage.update((p) => p - 1);
+
+    if (this.bottomPage() < this.defaultPage) {
+      this.loadedAllFuture.set(true);
+      return;
+    }
+
+    this._loadMoreMessagesDown(this.chatId(), {
+      page: this.bottomPage(),
+      pageSize: this.defaultPageSize,
+      searchTerm: this._chatUiState.searchTerm(),
+    });
   }
 
   onScroll(event: Event): void {
@@ -188,8 +202,42 @@ export class ChatMessagesComponent {
   }
 
   scrollToMessage(messageId: string, behavior: ScrollBehavior = 'smooth'): void {
-    const container = this.messagesContainer().nativeElement as HTMLElement;
+    const alreadyLoaded = this.messages().some((m) => m.messageId === messageId);
+    if (alreadyLoaded) {
+      setTimeout(() => this._scrollToMessage(messageId, behavior));
+      return;
+    }
 
+    this._messageService
+      .getMessagePage$(this.chatId(), messageId)
+      .pipe(
+        switchMap((res) => {
+          const page = res.data;
+          if (!page) return EMPTY;
+
+          this.page.set(page);
+          this.bottomPage.set(page);
+          this.loadedAllFuture.set(false);
+
+          return this._messageService.getChatMessages$(this.chatId(), {
+            page,
+            pageSize: this.defaultPageSize,
+            searchTerm: null,
+          });
+        }),
+        tap((res) => {
+          if (!res.isSuccess) return;
+
+          this._messageStoreService.setMessagesForChat(this.chatId(), res.items);
+          setTimeout(() => this._scrollToMessage(messageId, behavior));
+        }),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe();
+  }
+
+  private _scrollToMessage(messageId: string, behavior: ScrollBehavior): void {
+    const container = this.messagesContainer().nativeElement as HTMLElement;
     const target = container.querySelector(`[data-message-id="${messageId}"]`) as HTMLElement;
 
     if (!target) return;
@@ -204,8 +252,10 @@ export class ChatMessagesComponent {
       target.offsetHeight / 2;
 
     container.scrollTo({ top: offset, behavior });
+    this._highlightMessage(target);
+  }
 
-    // Highlight effect
+  private _highlightMessage(target: HTMLElement): void {
     target.classList.add(
       'bg-cyan-100',
       'dark:bg-cyan-900/30',
@@ -225,10 +275,10 @@ export class ChatMessagesComponent {
   selectedMessage = signal<MessageResponse | null>(null);
   selectedMessageType = signal<MessageType | null>(null);
   isAdmin = signal(false);
+
   items = computed<MenuItem[]>(() => {
     const isOutgoing = this.selectedMessageType() === 'outgoing';
     const canDelete = isOutgoing || this.isAdmin();
-
     const selectedMessage = this.selectedMessage();
 
     if (!selectedMessage) return [];
@@ -272,12 +322,7 @@ export class ChatMessagesComponent {
         : []),
 
       ...(selectedMessage.isEdited && selectedMessage.editedAt
-        ? [
-            { separator: true },
-            {
-              id: 'info',
-            },
-          ]
+        ? [{ separator: true }, { id: 'info' }]
         : []),
     ];
   });
@@ -289,6 +334,7 @@ export class ChatMessagesComponent {
     this.contextMenu().target = event.target as HTMLElement;
     this.contextMenu().show(event);
   }
+
   onHideContextMenu(): void {
     this.selectedMessage.set(null);
     this.selectedMessageType.set(null);
@@ -312,7 +358,6 @@ export class ChatMessagesComponent {
           if (!res.isSuccess) return;
           this._messageStoreService.setMessagesForChat(chatId, res.items);
 
-          // If first page already has no next, mark history as fully loaded
           if (!res.pagination.hasNext) {
             this.loadedAllHistory.set(true);
           }
@@ -324,18 +369,35 @@ export class ChatMessagesComponent {
 
   private _loadMoreMessages(chatId: string, queryParams: QueryParams): void {
     if (!isPlatformBrowser(this._platformId)) return;
-    if (this.loadedAllHistory()) return;
 
     this._messageService
       .getChatMessages$(chatId, queryParams)
       .pipe(
         tap((res) => {
           if (!res.isSuccess) return;
-
           this._messageStoreService.prependMessagesForChat(chatId, res.items);
 
           if (!res.pagination.hasNext) {
             this.loadedAllHistory.set(true);
+          }
+        }),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe();
+  }
+
+  private _loadMoreMessagesDown(chatId: string, queryParams: QueryParams): void {
+    if (!isPlatformBrowser(this._platformId)) return;
+
+    this._messageService
+      .getChatMessages$(chatId, queryParams)
+      .pipe(
+        tap((res) => {
+          if (!res.isSuccess) return;
+          this._messageStoreService.appendMessagesForChat(chatId, res.items);
+
+          if (!res.pagination.hasNext) {
+            this.loadedAllFuture.set(true);
           }
         }),
         takeUntilDestroyed(this._destroyRef),

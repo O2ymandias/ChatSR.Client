@@ -8,6 +8,7 @@
     [infiniteScrollThrottle]="100"
     [alwaysCallback]="true"
     (scrolledUp)="onScrolledUp()"
+    (scrolled)="onScrolledDown()"
     (scroll)="onScroll($event)"
     class="bg-surface-50 dark:bg-surface-950 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-300/50 hover:scrollbar-thumb-slate-400/70 dark:scrollbar-thumb-slate-700/50 dark:hover:scrollbar-thumb-slate-600 relative h-full overflow-y-auto"
   >
@@ -161,7 +162,7 @@
     severity="secondary"
     class="scroll-btn absolute right-5 bottom-5"
     [class.show]="showScrollButton()"
-    (click)="scrollToBottom(true)"
+    (click)="scrollToBottom('smooth')"
   />
 </div>
 

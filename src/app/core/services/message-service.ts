@@ -1,4 +1,4 @@
-import { QueryParams } from './../../shared/models/shared.model';
+import { ApiResponse, QueryParams } from './../../shared/models/shared.model';
 import { inject, Injectable } from '@angular/core';
 import { PagedApiResponse } from '../../shared/models/shared.model';
 import { environment } from '../../environment';
@@ -26,6 +26,15 @@ export class MessageService {
     }
 
     return this._httpClient.get<PagedApiResponse<MessageResponse>>(url, { params });
+  }
+
+  getMessagePage$(chatId: string, messageId: string) {
+    const url = `${environment.apiUrl}/message/${chatId}/${messageId}`;
+
+    let params = new HttpParams();
+    params = params.append('pageSize', this.DEFAULT_PAGE_SIZE.toString());
+
+    return this._httpClient.get<ApiResponse<number>>(url, { params });
   }
 
   sendMessage$(chatId: string, content: string) {

@@ -39,10 +39,29 @@ export class MessageStoreService {
     this._messagesByChat.update((map) => {
       const newMap = new Map(map);
       const existing = newMap.get(chatId) ?? [];
-      const sortedMessages = messages.sort(
-        (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime(),
-      );
+
+      const existingIds = new Set(existing.map((m) => m.messageId));
+      const sortedMessages = messages
+        .filter((m) => !existingIds.has(m.messageId))
+        .sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime());
+
       newMap.set(chatId, [...sortedMessages, ...existing]);
+      return newMap;
+    });
+  }
+
+  // Append messages for a specific chat (Messages come from forward pagination)
+  appendMessagesForChat(chatId: string, messages: MessageResponse[]): void {
+    this._messagesByChat.update((map) => {
+      const newMap = new Map(map);
+      const existing = newMap.get(chatId) ?? [];
+
+      const existingIds = new Set(existing.map((m) => m.messageId));
+      const sortedMessages = messages
+        .filter((m) => !existingIds.has(m.messageId))
+        .sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime());
+
+      newMap.set(chatId, [...existing, ...sortedMessages]);
       return newMap;
     });
   }
