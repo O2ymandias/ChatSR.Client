@@ -24,10 +24,11 @@ import { MessageResponse, MessageType } from '../../../../shared/models/message.
 import { ContextMenu } from 'primeng/contextmenu';
 import { MenuItem } from 'primeng/api';
 import { RippleModule } from 'primeng/ripple';
+import { Avatar } from 'primeng/avatar';
 
 @Component({
   selector: 'app-chat-messages-component',
-  imports: [DatePipe, ButtonModule, InfiniteScrollDirective, ContextMenu, RippleModule],
+  imports: [DatePipe, ButtonModule, InfiniteScrollDirective, ContextMenu, RippleModule, Avatar],
   templateUrl: './chat-messages-component.html',
   styleUrl: './chat-messages-component.css',
 })
