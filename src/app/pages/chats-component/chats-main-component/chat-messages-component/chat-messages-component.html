@@ -45,13 +45,13 @@
               (contextmenu)="onContextMenu($event, message, 'outgoing')"
             >
               <div
-                class="relative rounded-2xl rounded-tr-md bg-linear-to-br from-cyan-600 to-cyan-700 px-4 py-2.5 shadow-md transition-all hover:shadow-lg dark:from-cyan-700 dark:to-cyan-800"
+                class="relative rounded-2xl rounded-tr-sm bg-linear-to-b from-cyan-500 to-cyan-600 px-4 py-2.5 shadow-md transition-all hover:shadow-lg dark:from-cyan-700 dark:to-cyan-800"
               >
                 <!-- ReplyTo Overview -->
                 @if (message.replyToOverview) {
                   <div
                     pRipple
-                    class="mb-2 max-w-xs cursor-pointer overflow-hidden rounded-md border-l-2 border-white/40 bg-white/15 px-3 py-1.5 transition-colors hover:bg-white/25 dark:border-white/25 dark:bg-white/10 dark:hover:bg-white/20"
+                    class="mb-2 max-w-xs cursor-pointer overflow-hidden rounded-lg border-l-2 border-white/40 bg-white/15 px-3 py-1.5 transition-colors hover:bg-white/25 dark:border-white/25 dark:bg-white/10 dark:hover:bg-white/20"
                     (click)="scrollToMessage(message.replyToOverview.messageId)"
                   >
                     <p
@@ -102,7 +102,6 @@
           <!-- Incoming Message -->
           <div class="flex items-end justify-start gap-2">
             <!-- Avatar -->
-
             @if (chat()?.isGroup) {
               @if (message.senderPictureUrl) {
                 <p-avatar
@@ -126,13 +125,20 @@
               (contextmenu)="onContextMenu($event, message, 'incoming')"
             >
               <div
-                class="relative rounded-2xl rounded-tl-md bg-white px-4 py-2.5 shadow-md ring-1 ring-slate-200/60 transition-all hover:shadow-lg dark:bg-slate-800 dark:ring-slate-700/60"
+                class="relative rounded-2xl rounded-tl-sm bg-white px-4 py-2.5 shadow-sm ring-1 ring-slate-200/60 transition-all hover:shadow-lg dark:bg-slate-800 dark:ring-slate-700/60"
               >
+                <!-- Sender Name (group chats only) -->
+                @if (chat()?.isGroup) {
+                  <p class="mb-1 text-[11px] font-semibold text-cyan-600 dark:text-cyan-400">
+                    {{ message.senderDisplayName }}
+                  </p>
+                }
+
                 <!-- ReplyTo Overview -->
                 @if (message.replyToOverview) {
                   <div
                     pRipple
-                    class="mb-2 max-w-xs cursor-pointer overflow-hidden rounded-md border-l-2 border-cyan-500/70 bg-cyan-50 px-3 py-1.5 transition-colors hover:bg-cyan-100/80 dark:border-cyan-400/40 dark:bg-slate-700/60 dark:hover:bg-slate-700"
+                    class="mb-2 max-w-xs cursor-pointer overflow-hidden rounded-md border-l-2 border-cyan-400 bg-cyan-50 px-3 py-1.5 transition-colors hover:bg-cyan-100/80 dark:border-cyan-400/40 dark:bg-slate-700/60 dark:hover:bg-slate-700"
                     (click)="scrollToMessage(message.replyToOverview.messageId)"
                   >
                     <p
