@@ -103,20 +103,22 @@
           <div class="flex items-end justify-start gap-2">
             <!-- Avatar -->
 
-            @if (message.senderPictureUrl) {
-              <p-avatar
-                [image]="message.senderPictureUrl"
-                shape="circle"
-                size="normal"
-                class="shrink-0"
-              />
-            } @else {
-              <p-avatar
-                [label]="message.senderDisplayName.charAt(0).toUpperCase()"
-                shape="circle"
-                size="normal"
-                class="shrink-0"
-              />
+            @if (chat()?.isGroup) {
+              @if (message.senderPictureUrl) {
+                <p-avatar
+                  [image]="message.senderPictureUrl"
+                  shape="circle"
+                  size="normal"
+                  class="shrink-0"
+                />
+              } @else {
+                <p-avatar
+                  [label]="message.senderDisplayName.charAt(0).toUpperCase()"
+                  shape="circle"
+                  size="normal"
+                  class="shrink-0"
+                />
+              }
             }
 
             <div

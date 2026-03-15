@@ -25,6 +25,8 @@ import { ContextMenu } from 'primeng/contextmenu';
 import { MenuItem } from 'primeng/api';
 import { RippleModule } from 'primeng/ripple';
 import { Avatar } from 'primeng/avatar';
+import { ChatsService } from '../../../../core/services/chats-service';
+import { ChatResponse } from '../../../../shared/models/chats.model';
 
 @Component({
   selector: 'app-chat-messages-component',
@@ -37,6 +39,7 @@ export class ChatMessagesComponent {
   private readonly _messageService = inject(MessageService);
   private readonly _messageStoreService = inject(MessageStoreService);
   private readonly _chatUiState = inject(ChatUiStateService);
+  private readonly _chatService = inject(ChatsService);
   private readonly _platformId = inject(PLATFORM_ID);
   private readonly _destroyRef = inject(DestroyRef);
 
@@ -48,6 +51,7 @@ export class ChatMessagesComponent {
   readonly defaultPageSize = this._messageService.DEFAULT_PAGE_SIZE;
 
   chatId = input.required<string>();
+  chat = signal<ChatResponse | null>(null);
 
   page = signal(this.defaultPage);
   bottomPage = signal(this.defaultPage);
@@ -128,7 +132,13 @@ export class ChatMessagesComponent {
       this._loadMessages(chatId, searchTerm);
     });
 
-    // Effect 2: Scroll handling
+    // Effect 2: Load chat details when chatId changes
+    effect(() => {
+      const chatId = this.chatId();
+      this._loadChat(chatId);
+    });
+
+    // Effect 3: Scroll handling
     effect(() => {
       const messages = this.messages();
       const currentLength = messages.length;
@@ -451,6 +461,20 @@ export class ChatMessagesComponent {
           if (!res.pagination.hasNext) {
             this.loadedAllFuture.set(true);
           }
+        }),
+        takeUntilDestroyed(this._destroyRef),
+      )
+      .subscribe();
+  }
+
+  private _loadChat(chatId: string): void {
+    if (!isPlatformBrowser(this._platformId)) return;
+
+    this._chatService
+      .getChatById$(chatId)
+      .pipe(
+        tap((res) => {
+          if (res.isSuccess && res.data) this.chat.set(res.data);
         }),
         takeUntilDestroyed(this._destroyRef),
       )
